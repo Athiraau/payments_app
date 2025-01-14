@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../../../core/utils/config/styles/colors.dart';
 import '../../../../../../core/utils/shared/constant/assets_path.dart';
 import '../../../../../bread_crumbs/view/bread_crumbs.dart';
+
 class ImpsInquiry extends StatelessWidget {
   const ImpsInquiry({super.key});
 
@@ -25,7 +26,9 @@ class ImpsInquiry extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const BreadCrumbs(title: 'IMPS Inquiry',),
+            const BreadCrumbs(
+              title: 'IMPS Inquiry',
+            ),
             const SizedBox(
               height: 10,
             ),
@@ -56,6 +59,7 @@ class ImpsInquiry extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Text("Hello"),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: IconButton(
@@ -65,7 +69,7 @@ class ImpsInquiry extends StatelessWidget {
                               icon: const Icon(
                                 color: AppColor.drawerColor,
                                 Icons.arrow_back,
-                                size:24,
+                                size: 24,
                               )),
                         )
                       ],
