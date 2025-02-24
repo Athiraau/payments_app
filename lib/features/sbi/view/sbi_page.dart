@@ -239,7 +239,7 @@ class SbiTabItem extends StatelessWidget {
               if (item['route'] == RoutesPath.re_initiate) {
                 context.goNamed(
                   RoutesName.reInitiate,
-                  pathParameters: {
+                  queryParams: {
                     "userId": "1001",
                     "userName": "Raihan",
                   },
@@ -271,7 +271,7 @@ class SbiTabItem extends StatelessWidget {
             if (item['route'] == RoutesPath.re_initiate) {
               context.goNamed(
                 RoutesName.reInitiate,
-                pathParameters: {
+                queryParams: {
                   "userId": "1001",
                   "userName": "Raihan",
                 },

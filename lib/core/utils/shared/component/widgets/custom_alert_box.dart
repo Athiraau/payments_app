@@ -5,16 +5,12 @@ import 'custom_button.dart'; // Import your CustomButton
 import 'custom_text.dart'; // Import your CustomText
 
 class CustomAlertDialog {
-  static void showCustomAlertDialog({
-    required BuildContext context,
-    required String title,
-    required String message,
-    String? confirmText,
-    String? cancelText,
-    VoidCallback? onConfirm,
-    VoidCallback? onCancel,
-    required final bool isActionTrue
-  }) {
+  static void showCustomAlertDialog(
+      {required BuildContext context,
+      required String title,
+      required String message,
+      String? cancelText,
+      required final dynamic Function()? onCancelPressed}) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -46,39 +42,30 @@ class CustomAlertDialog {
             ),
           ),
           actions: <Widget>[
-            isActionTrue?Row(
-              mainAxisAlignment: MainAxisAlignment.end, // Align buttons to the end
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (cancelText != null)
-                  CustomButton(
-                    text: cancelText ?? 'Cancel',
-                    txtColor: Colors.white,
-                    btnColor: AppColor.pdfBtn,
-                    borderRadious: 8,
-                    paddingVal: 5,
-                    onPressed: () {
-                      if (onCancel != null) {
-                        onCancel();
-                      }
-                      Navigator.of(context).pop(false);
-                    },
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColor.drawerImgTileColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                const SizedBox(width: 8),
-                CustomButton(
-                  text: confirmText ?? 'OK',
-                  txtColor: Colors.white,
-                  btnColor: AppColor.excelBtn,
-                  borderRadious: 8,
-                  paddingVal: 5,
-                  onPressed: () {
-                    if (onConfirm != null) {
-                      onConfirm();
-                    }
-                    GoRouter.of(context).pop(false);
-                  },
+                  onPressed: onCancelPressed,
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: Text(
+                      cancelText ?? 'Ok',
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
                 ),
               ],
-            ):SizedBox(),
+            ),
           ],
         );
       },

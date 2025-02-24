@@ -24,7 +24,8 @@ class _PaymentStatusState extends State<PaymentStatus> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<PaymentStatusProvider>(context, listen: false).chkRRNumStatus();
+      Provider.of<PaymentStatusProvider>(context, listen: false)
+          .chkRRNumStatus();
     });
   }
 
@@ -33,6 +34,7 @@ class _PaymentStatusState extends State<PaymentStatus> {
     var size = MediaQuery.of(context).size;
     final _textController = TextEditingController();
     final isTablet = size.width >= 900;
+
     return Container(
       width: size.width,
       height: size.height,
@@ -213,20 +215,16 @@ class _PaymentStatusState extends State<PaymentStatus> {
                                           const SizedBox(
                                             height: 5,
                                           ),
-                                          paymentStatusProvider.showRRnum
-                                              ? _customRadioTile(
-                                                  title: 'RR Number',
-                                                  value: '3',
-                                                  groupValue:
-                                                      paymentStatusProvider
-                                                          .selectedOption,
-                                                  onChanged: (value) {
-                                                    paymentStatusProvider
-                                                        .updateSelectedOption(
-                                                            value!);
-                                                  },
-                                                )
-                                              : const SizedBox.shrink(),
+                                          paymentStatusProvider.showRRnum?_customRadioTile(
+                                            title: 'RR Number',
+                                            value: '3',
+                                            groupValue: paymentStatusProvider
+                                                .selectedOption,
+                                            onChanged: (value) {
+                                              paymentStatusProvider
+                                                  .updateSelectedOption(value!);
+                                            },
+                                          ):const SizedBox.shrink(),
                                           const SizedBox(height: 15),
                                           CustomText(
                                             text:
@@ -244,13 +242,6 @@ class _PaymentStatusState extends State<PaymentStatus> {
                                               hintTxt:
                                                   'Enter ${paymentStatusProvider.curDocTitle}',
                                               controller: _textController,
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Please enter a valid ${paymentStatusProvider.selectedOption}';
-                                                }
-                                                return null;
-                                              },
                                               keyboardType: TextInputType.text,
                                               labelTxtStyle: const TextStyle(
                                                   color: AppColor
@@ -264,7 +255,7 @@ class _PaymentStatusState extends State<PaymentStatus> {
                                                         id: _textController
                                                             .text,
                                                         type:
-                                                            '${paymentStatusProvider.selectedOption}');
+                                                            paymentStatusProvider.curDocTitle);
                                               },
                                               obscureText: false,
                                             ),

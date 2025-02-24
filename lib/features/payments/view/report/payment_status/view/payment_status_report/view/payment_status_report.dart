@@ -119,162 +119,102 @@ class PaymentStatusReport extends StatelessWidget {
                                   child: ListView(
                                       scrollDirection: Axis.vertical,
                                       children: [
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 17.0),
-                                      child: Container(
-                                        width: size.width,
-                                        decoration: BoxDecoration(
-                                          color: AppColor.primaryColor,
-                                          border: Border.all(
-                                              width: 1,
-                                              color: AppColor.dividerColor),
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color:
-                                                  Colors.grey.withOpacity(0.5),
-                                              spreadRadius: 2,
-                                              blurRadius: 5,
-                                              offset: const Offset(0, 3),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Theme(
-                                          data: Theme.of(context).copyWith(
-                                              dividerColor: Colors.transparent),
-                                          child: ExpansionTile(
-                                            title: Align(
-                                              alignment: Alignment.centerLeft,
+                                    if (paymentStatusProvider
+                                            .payStatusTableModel.response !=
+                                        null)
+                                      paymentStatusProvider.payStatusTableModel
+                                              .response!.isNotEmpty
+                                          ? Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 10),
                                               child: Row(
                                                 mainAxisAlignment:
-                                                    MainAxisAlignment.start,
+                                                    MainAxisAlignment.end,
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.center,
                                                 children: [
-                                                  Icon(
-                                                    Icons.sort,
-                                                    size: 20,
-                                                    color: AppColor
-                                                        .cardTitleSubColor,
+                                                  CustomButton(
+                                                    progress: paymentStatusProvider
+                                                            .loadExcelReport
+                                                        ? const SizedBox(
+                                                            width: 10,
+                                                            height: 10,
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                              color:
+                                                                  Colors.white,
+                                                            ))
+                                                        : null,
+                                                    customWidget:
+                                                        SvgPicture.asset(
+                                                      AssetsPath.excel,
+                                                      width: 18,
+                                                      height: 18,
+                                                      color: Colors.white,
+                                                    ),
+                                                    text: 'Export to Excel',
+                                                    txtColor: Colors.white,
+                                                    btnColor: AppColor.excelBtn,
+                                                    borderRadious: 8,
+                                                    width: 143,
+                                                    height: 38,
+                                                    onPressed: () {
+                                                      paymentStatusProvider
+                                                          .exportToExcel(
+                                                              context);
+                                                    },
                                                   ),
                                                   SizedBox(
                                                     width: 10,
                                                   ),
-                                                  CustomText(
-                                                    text: "Filter",
-                                                    fontSize: isTablet ? 12 : 9,
-                                                    fontFamily:
-                                                        'poppinsRegular',
-                                                    color: AppColor
-                                                        .cardTitleSubColor,
+                                                  CustomButton(
+                                                    customWidget:
+                                                        SvgPicture.asset(
+                                                      AssetsPath.pdf,
+                                                      width: 18,
+                                                      height: 18,
+                                                      color: Colors.white,
+                                                    ),
+                                                    text: 'Export to Pdf',
+                                                    txtColor:
+                                                        AppColor.primaryColor,
+                                                    btnColor: AppColor.pdfBtn,
+                                                    borderRadious: 8,
+                                                    width: 143,
+                                                    height: 40,
+                                                    onPressed: () {
+                                                      paymentStatusProvider
+                                                          .exportToPdf(context);
+                                                    },
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  CustomButton(
+                                                    text: 'Exit',
+                                                    txtColor: Colors.white,
+                                                    btnColor: AppColor
+                                                        .drawerImgTileColor,
+                                                    borderRadious: 8,
+                                                    width: 143,
+                                                    height: 38,
+                                                    onPressed: () {
+                                                      context.pop();
+                                                    },
                                                   ),
                                                 ],
                                               ),
-                                            ),
-                                            children: [
-                                              SizedBox(
-                                                width: size.width,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      for (String label in [
-                                                        "Module",
-                                                        "Payment Type",
-                                                        "Payment Bank",
-                                                        "Branch",
-                                                        "Status"
-                                                      ])
-                                                        Expanded(
-                                                          flex: 2,
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .symmetric(
-                                                                    vertical:
-                                                                        4.0),
-                                                            child: Align(
-                                                              alignment: Alignment
-                                                                  .centerLeft,
-                                                              child: CustomText(
-                                                                text: label,
-                                                                fontSize:
-                                                                    isTablet
-                                                                        ? 12
-                                                                        : 9,
-                                                                fontFamily:
-                                                                    'poppinsRegular',
-                                                                color: AppColor
-                                                                    .cardTitleSubColor,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 10),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          CustomButton(
-                                            customWidget: SvgPicture.asset(
-                                              AssetsPath.excel,
-                                              width: 18,
-                                              height: 18,
-                                              color: Colors.white,
-                                            ),
-                                            text: 'Export to Excel',
-                                            txtColor: Colors.white,
-                                            btnColor: AppColor.excelBtn,
-                                            borderRadious: 8,
-                                            width: 143,
-                                            height: 38,
-                                            onPressed: () {},
-                                          ),
-                                          SizedBox(
-                                            width: 10,
-                                          ),
-                                          CustomButton(
-                                            customWidget: SvgPicture.asset(
-                                              AssetsPath.pdf,
-                                              width: 18,
-                                              height: 18,
-                                              color: Colors.white,
-                                            ),
-                                            text: 'Export to Pdf',
-                                            txtColor: AppColor.primaryColor,
-                                            btnColor: AppColor.pdfBtn,
-                                            borderRadious: 8,
-                                            width: 143,
-                                            height: 40,
-                                            onPressed: () {},
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                   paymentStatusProvider.isLoading
-                                            ? _buildShimmerList()
-                                            : Padding(
+                                            )
+                                          : const SizedBox.shrink(),
+                                    paymentStatusProvider.isLoading
+                                        ? _buildShimmerList()
+                                        : paymentStatusProvider
+                                                .payStatusTableModel
+                                                .response!
+                                                .isNotEmpty
+                                            ? Padding(
                                                 padding:
                                                     const EdgeInsets.symmetric(
                                                         horizontal: 15.0),
@@ -307,8 +247,8 @@ class PaymentStatusReport extends StatelessWidget {
                                                       horizontalMargin: 12.0,
                                                       dataRowMinHeight: 0,
                                                     ),
-                                                    textTheme: TextTheme(
-                                                        caption: TextStyle(
+                                                    textTheme: const TextTheme(
+                                                        bodySmall: TextStyle(
                                                             color: AppColor
                                                                 .card5)),
                                                   ),
@@ -321,57 +261,57 @@ class PaymentStatusReport extends StatelessWidget {
                                                       header: null,
                                                       columns: const [
                                                         DataColumn(
-                                                            label: Text(
-                                                                'MOD DESCR')),
-                                                        DataColumn(
-                                                            label: Text(
-                                                                'Branch name')),
-                                                        DataColumn(
-                                                            label: Text(
-                                                                'Branch id')),
+                                                            label:
+                                                                Text('Module')),
                                                         DataColumn(
                                                             label:
-                                                                Text('Doc Id')),
+                                                                Text('Branch')),
                                                         DataColumn(
                                                             label: Text(
-                                                                'Customer Id')),
+                                                                'BranchId')),
+                                                        DataColumn(
+                                                            label:
+                                                                Text('DocId')),
+                                                        DataColumn(
+                                                            label: Text(
+                                                                'CustomerId')),
                                                         DataColumn(
                                                             label:
                                                                 Text('Amount')),
                                                         DataColumn(
                                                             label: Text(
-                                                                'Value date')),
+                                                                'TraDate')),
                                                         DataColumn(
                                                             label: Text(
-                                                                'Send date')),
+                                                                'SendDate')),
                                                         DataColumn(
                                                             label: Text(
-                                                                'Send transaction Id')),
+                                                                'SendTransId')),
                                                         DataColumn(
                                                             label: Text(
-                                                                'Co-operate Id')),
+                                                                'CorporateId')),
                                                         DataColumn(
                                                             label: Text(
-                                                                'Batch Number')),
+                                                                'BatchNumber')),
                                                         DataColumn(
                                                             label: Text(
-                                                                'Customer name')),
+                                                                'BeneName')),
                                                         DataColumn(
                                                             label: Text(
-                                                                'Beneficiary account')),
+                                                                'BeneAccNo')),
                                                         DataColumn(
                                                             label: Text(
-                                                                'IFSC Code')),
+                                                                'BeneIFSCCode')),
                                                         DataColumn(
                                                             label: Text(
-                                                                'SEQ Number')),
+                                                                'SeqNumber')),
                                                       ],
                                                       source: TableDataSource(
                                                           paymentStatusProvider
                                                               .payStatusTableModel
                                                               .response!
-                                                              .cast<
-                                                                  Response>()),
+                                                              .cast<Response>(),
+                                                          context),
                                                       rowsPerPage:
                                                           paymentStatusProvider
                                                               .rowsPerPage,
@@ -393,6 +333,22 @@ class PaymentStatusReport extends StatelessWidget {
                                                   ),
                                                 ),
                                               )
+                                            : Center(
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 20),
+                                                  child: CustomText(
+                                                    text: isTablet
+                                                        ? "No data found"
+                                                        : "No data found",
+                                                    fontSize:
+                                                        isTablet ? 12 : 10,
+                                                    fontFamily:
+                                                        'poppinsRegular',
+                                                    color: AppColor.hdTxtColor,
+                                                  ),
+                                                ),
+                                              ),
                                   ]))
                             ],
                           );
@@ -410,15 +366,17 @@ class PaymentStatusReport extends StatelessWidget {
 
 class TableDataSource extends DataTableSource {
   final List<Response> data;
+  final BuildContext context;
 
-  TableDataSource(List<Response>? data) : data = data ?? [];
+  TableDataSource(List<Response>? data, this.context) : data = data ?? [];
 
   @override
   DataRow? getRow(int index) {
     if (index >= data.length) {
-      return DataRow(cells: [
+      return const DataRow(cells: [
         DataCell(Text('No data available',
-            style: TextStyle(fontStyle: FontStyle.italic,color: AppColor.errorTxt))),
+            style: TextStyle(
+                fontStyle: FontStyle.italic, color: AppColor.errorTxt))),
       ]);
     }
 
@@ -430,7 +388,51 @@ class TableDataSource extends DataTableSource {
         DataCell(Text(row.mODDESCR ?? '')),
         DataCell(Text(row.bRANCHNAME ?? '')),
         DataCell(Text("${row.bRANCHID ?? ''}")),
-        DataCell(Text(row.dOCID ?? '')),
+        DataCell(InkWell(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    backgroundColor: AppColor.primaryColor,
+                    content: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.50,
+                      height: MediaQuery.of(context).size.height * 0.40,
+                      child: ListView(
+                          scrollDirection: Axis.vertical, children: []),
+                    ), // replace with your image path
+                    actions: [
+                      Center(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColor.drawerImgTileColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: () {
+                            context.pop();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(5),
+                            child: Text(
+                              'Ok',
+                              style: const TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: Text(
+              row.dOCID ?? '',
+              style: _highLiteTxtStyle,
+            ))),
         DataCell(Text(row.cUSTID ?? '')),
         DataCell(Text("${row.aMOUNT ?? ''}")),
         DataCell(Text(row.vALUEDATE ?? '')),
@@ -491,13 +493,22 @@ Widget _buildShimmerList() {
   );
 }
 
-final _tableRowTxtStyle = TextStyle(
+const _tableRowTxtStyle = TextStyle(
     fontFamily: 'poppinsRegular',
     fontSize: 10,
     color: AppColor.cardTitleSubColor);
 
-final _headTxtStyle = TextStyle(
+const _headTxtStyle = TextStyle(
   fontFamily: 'poppinsSemiBold',
   fontSize: 13,
   color: AppColor.primaryColor,
+);
+
+const _highLiteTxtStyle = TextStyle(
+  shadows: [Shadow(color: AppColor.highLiteTxt, offset: Offset(0, -5))],
+  color: Colors.transparent,
+  decoration: TextDecoration.underline,
+  decorationColor: AppColor.dividerColor,
+  decorationThickness: 4,
+  decorationStyle: TextDecorationStyle.dashed,
 );

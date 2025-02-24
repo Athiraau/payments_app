@@ -1,54 +1,45 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/services.dart';
+import 'package:pdf/pdf.dart';
+
 import 'package:excel/excel.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:payments_application/core/utils/shared/constant/assets_path.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:permission_handler/permission_handler.dart';
+import 'dart:html' as html;
+
 import '../../../../../../core/helpers/cache_helper/app_cache_helper.dart';
 import '../../../../../../core/helpers/encryption/app_encryption_helper.dart';
 import '../../../../../../core/helpers/encryption/encryption_value.dart';
 import '../../../../../../core/helpers/routes/app_route_name.dart';
 import '../../../../../../core/utils/shared/component/widgets/custom_toast.dart';
-import '../model/pay_status_table_model.dart';
-import '../repository/payment_status_repository.dart';
-import 'dart:html' as html;
+import '../../../../../../core/utils/shared/constant/assets_path.dart';
+import '../model/demo_mode_remove.dart';
+import '../model/imps_table_mode.dart';
+import '../repository/imps_inquiry_repository.dart';
 
-class PaymentStatusProvider extends ChangeNotifier {
-  PaymentStatusProvider() {
+class ImpsInquiryProvider extends ChangeNotifier {
+  ImpsInquiryProvider() {
     formatDateTime();
   }
-
-  String curDocTitle = "Document ID";
-
-  void updateTitle() {
-    if (_selectedOption == '1') {
-      curDocTitle = "Document ID";
-      notifyListeners();
-    } else if (_selectedOption == '2') {
-      curDocTitle = "Customer ID";
-      notifyListeners();
-    } else if (_selectedOption == '3') {
-      curDocTitle = "RR ID";
-      notifyListeners();
-    }
-  }
-
-  String _selectedOption = '1';
   String _branchName = '';
 
+  String curDocTitle = 'Corporate ID';
+  String _selectedOption = 'Corporate ID';
+
   String get branchName => _branchName;
+
+
+
 
   set branchName(String value) {
     _branchName = value;
   }
-
   bool _isLoading = false;
 
   bool get isLoading => _isLoading;
@@ -56,6 +47,38 @@ class PaymentStatusProvider extends ChangeNotifier {
   set isLoading(bool value) {
     _isLoading = value;
   }
+
+
+
+  String _formattedDate = '';
+  String _formattedTime = '';
+  Timer? _timer;
+
+  String get formattedDate => _formattedDate;
+  String get formattedTime => _formattedTime;
+
+  set formattedDate(String value) {
+    _formattedDate = value;
+  }
+
+  set formattedTime(String value) {
+    _formattedTime = value;
+  }
+  Map<String, String> dropdownValues = {
+    "Module": "Select Module",
+    "Payment Type": "Select Type",
+    "Payment Bank": "Select Bank",
+    "Branch": "Select Branch",
+    "Status": "Select Status",
+  };
+
+  Map<String, List<String>> dropdownOptions = {
+    "Module": ["Select Module", "Module 1", "Module 2"],
+    "Payment Type": ["Select Type", "Credit", "Debit"],
+    "Payment Bank": ["Select Bank", "Bank A", "Bank B"],
+    "Branch": ["Select Branch", "Branch X", "Branch Y"],
+    "Status": ["Select Status", "Active", "Inactive"],
+  };
 
   Future<void> setCurBranchName() async {
     final _appCacheHelper = AppCacheHelper();
@@ -67,45 +90,6 @@ class PaymentStatusProvider extends ChangeNotifier {
         ivKey: EncryptionValue.ivAsString);
     branchName = _decrptBranchName;
     notifyListeners();
-  }
-
-  int _rowsPerPage = 10;
-
-  int get rowsPerPage => _rowsPerPage;
-
-  void updateRowsPage({required int data}) {
-    _rowsPerPage = data;
-  }
-
-  bool hoverBtn = false;
-
-  void mouseHover() {
-    hoverBtn = !hoverBtn;
-    notifyListeners();
-  }
-
-  String get selectedOption => _selectedOption;
-
-  void updateSelectedOption(String value) {
-    _selectedOption = value;
-    updateTitle();
-    notifyListeners();
-  }
-
-  String _formattedDate = '';
-  String _formattedTime = '';
-  Timer? _timer;
-
-  String get formattedDate => _formattedDate;
-
-  String get formattedTime => _formattedTime;
-
-  set formattedDate(String value) {
-    _formattedDate = value;
-  }
-
-  set formattedTime(String value) {
-    _formattedTime = value;
   }
 
   void formatDateTime() {
@@ -122,6 +106,22 @@ class PaymentStatusProvider extends ChangeNotifier {
       notifyListeners();
     });
   }
+  int _rowsPerPage = 10;
+
+  int get rowsPerPage => _rowsPerPage;
+
+  void updateRowsPage({required int data}) {
+    _rowsPerPage = data;
+  }
+
+  bool hoverBtn = false;
+
+  void mouseHover() {
+    hoverBtn = !hoverBtn;
+    notifyListeners();
+  }
+
+  String get selectedOption => _selectedOption;
 
   String _validateId = '';
 
@@ -145,37 +145,63 @@ class PaymentStatusProvider extends ChangeNotifier {
     _timer?.cancel();
     super.dispose();
   }
+  //dummy data
 
-  //dummy data drop down
-  List<Map<String, dynamic>> _moduleItem = [
-    {"id": 1, "title": ""}
-  ];
+  List<Map<String, dynamic>> demoDataList = List.generate(100, (index) {
+    return {
+      'MOD DESCR': 'Transaction ${index + 1}',
+      'Branch name': 'Branch ${index + 1}',
+      'Branch id': 'BR00${index + 1}',
+      'Doc Id': 'DOC${1000 + index+1}',
+      'Customer Id': 'CUST${2000 + index}',
+      'Amount': '${(index + 1) * 1000.50}',
+      'Value date': '2025-01-${10 + index}',
+      'Send date': '2025-01-${9 + index}',
+      'Send transaction Id': 'TXN${900000000 + index}',
+      'Co-operate Id': 'COOP${3000 + index}',
+      'Batch Number': 'BATCH2025${10 + index}',
+      'Customer name': 'Customer ${index + 1}',
+      'Beneficiary account': '1234567890${index + 1}',
+      'IFSC Code': 'BANK000${100 + index}',
+      'SEQ Number': 'SEQ${index + 1}',
+    };
+  });
 
-  final _api = PaymentStatusRepository();
-  var payStatusTableModel = PayStatusTableModel();
 
-  Future<void> fetchPayStatusData(
+
+  final _api = ImpsInquiryRepository();
+  var impsTableModels = ImpsTableModel(items: []);
+
+  Future<void> fetchimpxData(
       {required BuildContext context, required String id}) async {
     try {
       isLoading = true;
       notifyListeners();
-      final response =
-          await _api.fetchPayStatusData(ckBoxId: _selectedOption, id: id);
+      // final response =
+      // await _api.ImpsinquiryData(ckBoxId: _selectedOption, id: id);
+      impsTableModels = ImpsTableModel.fromJsonList(demoDataList);
+      notifyListeners();
 
-      if (response != null && response['status'] == 200) {
-        if (response['data']['response'] != null) {
-          payStatusTableModel = PayStatusTableModel.fromJson(response['data']);
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            context.goNamed(RoutesName.paymentStatusReport);
-          });
-          notifyListeners();
-        } else {
-          CustomToast.showCustomErrorToast(message: "response is empty");
-        }
-      } else {
-        CustomToast.showCustomErrorToast(message: "Unexpected error occurred");
-        notifyListeners();
-      }
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+                context.goNamed(RoutesName.impsInquiryReport);
+              });
+            notifyListeners();
+
+      //   if (response != null && response['status'] == 200) {
+    //     if (response['data']['response'] != null) {
+    //       ImpsTableModels = ImpsTableModel.fromJson(response['data']);
+    //       WidgetsBinding.instance.addPostFrameCallback((_) {
+    //         context.goNamed(RoutesName.impsInquiryReport);
+    //       });
+    //       notifyListeners();
+    //     } else {
+    //       CustomToast.showCustomErrorToast(message: "response is empty");
+    //     }
+    //   } else {
+    //     CustomToast.showCustomErrorToast(message: "Unexpected error occurred");
+    //     notifyListeners();
+    //   }
     } catch (e) {
       if (kDebugMode) {
         print("Error $e");
@@ -186,39 +212,11 @@ class PaymentStatusProvider extends ChangeNotifier {
     }
   }
 
-  bool _showRRnum = false;
 
-  bool get showRRnum => _showRRnum;
 
-  set showRRnum(bool value) {
-    _showRRnum = value;
-  }
 
-  Future<void> chkRRNumStatus() async {
-    try {
-      final response = await _api.chkRRNumStatus();
 
-      if (response != null && response['status'] == 200) {
-        if (response['data']['response'] != null) {
-          final data = response['data']['response'][0]['CNT'].toString();
-          if (data == '1') {
-            showRRnum = true;
-            notifyListeners();
-          } else if (data == '0') {
-            showRRnum = false;
-            notifyListeners();
-          }
-        }
-      } else {
-        CustomToast.showCustomErrorToast(message: "Unexpected error occurred");
-        notifyListeners();
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error $e");
-      }
-    }
-  }
+
 
   bool loadExcelReport = false;
 
@@ -227,8 +225,8 @@ class PaymentStatusProvider extends ChangeNotifier {
       loadExcelReport = true;
       notifyListeners();
 
-      if (payStatusTableModel.response!.isEmpty &&
-          payStatusTableModel.response != null) {
+      if (impsTableModels.items!.isEmpty &&
+          impsTableModels.items != null) {
         // Handle empty data case
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No data to export')),
@@ -265,8 +263,9 @@ class PaymentStatusProvider extends ChangeNotifier {
       }
 
       // Add data
-      for (int i = 0; i < payStatusTableModel.response!.length; i++) {
-        Response item = payStatusTableModel.response![i];
+      for (int i = 0; i < impsTableModels.items!.length; i++) {
+        ImpsTableItem item = impsTableModels.items![i];
+
         sheetObject
             .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: i + 1))
             .value = TextCellValue(item.mODDESCR ?? '');
@@ -384,7 +383,7 @@ class PaymentStatusProvider extends ChangeNotifier {
 
   //export to pdf
   Future<void> exportToPdf(BuildContext context) async {
-    if (payStatusTableModel.response!.isEmpty) {
+    if (impsTableModels.items!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No data to export')),
       );
@@ -400,10 +399,10 @@ class PaymentStatusProvider extends ChangeNotifier {
     final fontDataBold = await rootBundle.load("assets/fonts/Poppins-Bold.ttf");
     final poppinsBold = pw.Font.ttf(fontDataBold);
     final fontDataSemiBold =
-        await rootBundle.load("assets/fonts/Poppins-SemiBold.ttf");
+    await rootBundle.load("assets/fonts/Poppins-SemiBold.ttf");
     final poppinsSemiBold = pw.Font.ttf(fontDataSemiBold);
     final fontDataRegular =
-        await rootBundle.load("assets/fonts/Poppins-Regular.ttf");
+    await rootBundle.load("assets/fonts/Poppins-Regular.ttf");
     final poppinsRegular = pw.Font.ttf(fontDataRegular);
     List<String> headers = [
       'Module',
@@ -423,7 +422,7 @@ class PaymentStatusProvider extends ChangeNotifier {
       'SeqNumber'
     ];
 
-    List<List<String>> tableData = payStatusTableModel.response!.map((item) {
+    List<List<String>> tableData = impsTableModels.items!.map((item) {
       return [
         item.mODDESCR ?? '',
         item.bRANCHNAME ?? '',
@@ -485,7 +484,7 @@ class PaymentStatusProvider extends ChangeNotifier {
     );
 
     String formattedDate = DateFormat('MMM d, yyyy').format(DateTime.now());
-    String fileName = 'payments_report_$formattedDate.pdf';
+    String fileName = 'imps_report_$formattedDate.pdf';
 
     if (kIsWeb) {
       final bytes = await pdf.save();
@@ -500,9 +499,9 @@ class PaymentStatusProvider extends ChangeNotifier {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-            'PDF file downloaded: $fileName',
-            style: const TextStyle(fontSize: 12, fontFamily: 'poppinsRegular'),
-          )),
+                'PDF file downloaded: $fileName',
+                style: const TextStyle(fontSize: 12, fontFamily: 'poppinsRegular'),
+              )),
         );
       });
     } else {
@@ -515,10 +514,10 @@ class PaymentStatusProvider extends ChangeNotifier {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Text(
-              'PDF file saved to: $filePath',
-              style:
+                  'PDF file saved to: $filePath',
+                  style:
                   const TextStyle(fontSize: 12, fontFamily: 'poppinsRegular'),
-            )),
+                )),
           );
         });
       } else {
@@ -526,46 +525,14 @@ class PaymentStatusProvider extends ChangeNotifier {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
                 content: Text(
-              'Storage permission denied',
-              style:
+                  'Storage permission denied',
+                  style:
                   const TextStyle(fontSize: 12, fontFamily: 'poppinsRegular'),
-            )),
+                )),
           );
         });
       }
     }
   }
 
-  //fetch docId data
-  Future<void> fetchDocIdData(
-      {required BuildContext context, required String id}) async {
-    try {
-      isLoading = true;
-      notifyListeners();
-      final response =
-      await _api.fetchPayStatusData(ckBoxId: _selectedOption, id: id);
-
-      if (response != null && response['status'] == 200) {
-        if (response['data']['response'] != null) {
-          payStatusTableModel = PayStatusTableModel.fromJson(response['data']);
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            context.goNamed(RoutesName.paymentStatusReport);
-          });
-          notifyListeners();
-        } else {
-          CustomToast.showCustomErrorToast(message: "response is empty");
-        }
-      } else {
-        CustomToast.showCustomErrorToast(message: "Unexpected error occurred");
-        notifyListeners();
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error $e");
-      }
-    } finally {
-      isLoading = false;
-      notifyListeners();
-    }
-  }
 }

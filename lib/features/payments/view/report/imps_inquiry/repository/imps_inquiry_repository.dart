@@ -5,17 +5,17 @@ import '../../../../../../core/helpers/encryption/app_encryption_helper.dart';
 import '../../../../../../core/helpers/encryption/encryption_value.dart';
 import '../../../../../../core/helpers/network/network_api_services.dart';
 
-class PaymentStatusRepository {
+class ImpsInquiryRepository {
   final _apiService = NetworkApiServices();
 
-  Future<dynamic> fetchPayStatusData(
+  Future<dynamic> ImpsinquiryData(
       {required String ckBoxId, required String id}) async {
     dynamic response = await _apiService.getApi(
         "${ApiEndPoints.baseURL}${ApiEndPoints.paymentData}$ckBoxId*$id/1");
     return response;
   }
 
-  Future<dynamic> chkRRNumStatus() async {
+  Future<dynamic> Impsinquiryapi() async {
     final _appCacheHelper = AppCacheHelper();
     final _appDecryptHelper = AppEncryptionHelper();
     final _encrptEmpId = await _appCacheHelper.getData("empCode");
@@ -28,9 +28,5 @@ class PaymentStatusRepository {
     return response;
   }
 
-  Future<dynamic> fetchDocIdData({required String docId}) async {
-    dynamic response = await _apiService.getApi(
-        "${ApiEndPoints.baseURL}${ApiEndPoints.paymentReport}${ApiEndPoints.getPaymentReport}$docId/1");
-    return response;
-  }
+
 }

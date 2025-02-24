@@ -95,13 +95,10 @@ class HomeProvider extends ChangeNotifier {
   }
 
   //handle session
-  String _curSession =
-      "34C94FBEFBD54C3036D2001D88A3749E738CB833FCA0D0099BF7DC612E75598C195656ABC439E04BB11ED5A948558AD43241FF2BC11C42D4D44AC86973CB9DDD";
-
-  String get curSession => _curSession;
 
   final _api = HomeRepository();
-  Future<void> sessionApi({required BuildContext context}) async {
+  Future<void> sessionApi(
+      {required BuildContext context, required String curSession}) async {
     try {
       isLoading = true;
       notifyListeners();
@@ -134,7 +131,9 @@ class HomeProvider extends ChangeNotifier {
             context.goNamed(RoutesName.home);
           });
           notifyListeners();
-        } else {}
+        } else {
+          CustomToast.showCustomToast(message: "Unexpected error occurred");
+        }
       } else {
         CustomToast.showCustomToast(message: "Unexpected error occurred");
         notifyListeners();

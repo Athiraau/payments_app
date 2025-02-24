@@ -12,17 +12,24 @@ class PaymentsRepository {
     final _appCacheHelper = AppCacheHelper();
     final _appDecryptHelper = AppEncryptionHelper();
     final _encrptEmpId = await _appCacheHelper.getData("empCode");
-    final _encrptBranchId = await _appCacheHelper.getData("branchID");
     final _decrptEmpId = _appDecryptHelper.decryptData(
         data: _encrptEmpId.toString(),
         baseKey: EncryptionValue.keyAsString,
         ivKey: EncryptionValue.ivAsString);
-    final _decrptBranchId = _appDecryptHelper.decryptData(
-        data: _encrptBranchId.toString(),
+    dynamic response = await _apiService.getApi(
+        "${ApiEndPoints.baseURL}${ApiEndPoints.paymentAccess}${"10905"}/${1}");
+    return response;
+  }
+  Future<dynamic> chkImpsStatus() async {
+    final _appCacheHelper = AppCacheHelper();
+    final _appDecryptHelper = AppEncryptionHelper();
+    final _encrptEmpId = await _appCacheHelper.getData("empCode");
+    final _decrptEmpId = _appDecryptHelper.decryptData(
+        data: _encrptEmpId.toString(),
         baseKey: EncryptionValue.keyAsString,
         ivKey: EncryptionValue.ivAsString);
     dynamic response = await _apiService.getApi(
-        "${ApiEndPoints.baseURL}${ApiEndPoints.paymentAccess}${10905}/${1}");
+        "${ApiEndPoints.baseURL}${ApiEndPoints.impsAccess}${_decrptEmpId}/${1}");
     return response;
   }
 }
