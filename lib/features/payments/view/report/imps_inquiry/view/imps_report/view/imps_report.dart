@@ -3,6 +3,7 @@ import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:payments_application/core/helpers/routes/app_route_name.dart';
 import 'package:payments_application/core/helpers/routes/app_route_path.dart';
 import 'package:payments_application/core/utils/shared/component/widgets/custom_text.dart';
@@ -17,8 +18,24 @@ import '../../../controller/imps_inquiry_controller.dart';
 import '../../../model/demo_mode_remove.dart';
 import '../../../model/imps_table_mode.dart';
 
-class ImpsInquiryReport extends StatelessWidget {
+class ImpsInquiryReport extends StatefulWidget {
   const ImpsInquiryReport({super.key});
+
+  @override
+  State<ImpsInquiryReport> createState() => _ImpsInquiryReportState();
+}
+
+class _ImpsInquiryReportState extends State<ImpsInquiryReport> {
+  TextEditingController fromDateController = TextEditingController();
+  TextEditingController toDateController = TextEditingController();
+
+  @override
+  void dispose() {
+    // Don't forget to dispose the controllers when the widget is destroyed
+    fromDateController.dispose();
+    toDateController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,92 +66,6 @@ class ImpsInquiryReport extends StatelessWidget {
                 const SizedBox(
                   height: 10,
                 ),
-                // Padding(
-                //   padding: const EdgeInsets.symmetric(horizontal: 17.0),
-                //   child: Container(
-                //     width: size.width,
-                //     decoration: BoxDecoration(
-                //       color: AppColor.primaryColor,
-                //       border:
-                //           Border.all(width: 1, color: AppColor.dividerColor),
-                //       borderRadius: BorderRadius.circular(8.0),
-                //       boxShadow: [
-                //         BoxShadow(
-                //           color: Colors.grey.withOpacity(0.5),
-                //           spreadRadius: 2,
-                //           blurRadius: 5,
-                //           offset: const Offset(0, 3),
-                //         ),
-                //       ],
-                //     ),
-                //     child: Theme(
-                //       data: Theme.of(context)
-                //           .copyWith(dividerColor: Colors.transparent),
-                //       child: ExpansionTile(
-                //         title: Align(
-                //           alignment: Alignment.centerLeft,
-                //           child: Row(
-                //             mainAxisAlignment: MainAxisAlignment.start,
-                //             crossAxisAlignment: CrossAxisAlignment.center,
-                //             children: [
-                //               Icon(
-                //                 Icons.sort,
-                //                 size: 20,
-                //                 color: AppColor.cardTitleSubColor,
-                //               ),
-                //               SizedBox(
-                //                 width: 10,
-                //               ),
-                //               CustomText(
-                //                 text: "Filter",
-                //                 fontSize: isTablet ? 12 : 9,
-                //                 fontFamily: 'poppinsRegular',
-                //                 color: AppColor.cardTitleSubColor,
-                //               ),
-                //             ],
-                //           ),
-                //         ),
-                //         children: [
-                //           SizedBox(
-                //             width: size.width,
-                //             child: Padding(
-                //               padding: const EdgeInsets.all(8.0),
-                //               child: Row(
-                //                 mainAxisAlignment: MainAxisAlignment.start,
-                //                 crossAxisAlignment: CrossAxisAlignment.center,
-                //                 children: [
-                //                   for (String label in [
-                //                     "Module",
-                //                     "Payment Type",
-                //                     "Payment Bank",
-                //                     "Branch",
-                //                     "Status"
-                //                   ])
-                //                     Expanded(
-                //                       flex: 2,
-                //                       child: Padding(
-                //                         padding: const EdgeInsets.symmetric(
-                //                             vertical: 4.0),
-                //                         child: Align(
-                //                           alignment: Alignment.centerLeft,
-                //                           child: CustomText(
-                //                             text: label,
-                //                             fontSize: isTablet ? 12 : 9,
-                //                             fontFamily: 'poppinsRegular',
-                //                             color: AppColor.cardTitleSubColor,
-                //                           ),
-                //                         ),
-                //                       ),
-                //                     ),
-                //                 ],
-                //               ),
-                //             ),
-                //           ),
-                //         ],
-                //       ),
-                //     ),
-                //   ),
-                // ),
                 Expanded(
                   child: Container(
                       width: size.width,
@@ -211,6 +142,397 @@ class ImpsInquiryReport extends StatelessWidget {
                                   child: ListView(
                                       scrollDirection: Axis.vertical,
                                       children: [
+                                    impsInquiryProvider
+                                            .impsTableModels.items!.isNotEmpty
+                                        ? Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 17.0),
+                                            child: Container(
+                                              width: size.width,
+                                              decoration: BoxDecoration(
+                                                color: AppColor.primaryColor,
+                                                border: Border.all(
+                                                    width: 1,
+                                                    color:
+                                                        AppColor.dividerColor),
+                                                borderRadius:
+                                                    BorderRadius.circular(8.0),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.grey
+                                                        .withOpacity(0.5),
+                                                    spreadRadius: 2,
+                                                    blurRadius: 5,
+                                                    offset: const Offset(0, 3),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Theme(
+                                                data: Theme.of(context)
+                                                    .copyWith(
+                                                        dividerColor:
+                                                            Colors.transparent),
+                                                child: ExpansionTile(
+                                                  title: Align(
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Icon(
+                                                          Icons.sort,
+                                                          size: 20,
+                                                          color: AppColor
+                                                              .cardTitleSubColor,
+                                                        ),
+                                                        SizedBox(width: 10),
+                                                        CustomText(
+                                                          text: "Filter",
+                                                          fontSize:
+                                                              isTablet ? 12 : 9,
+                                                          fontFamily:
+                                                              'poppinsRegular',
+                                                          color: AppColor
+                                                              .cardTitleSubColor,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          for (String label in [
+                                                            "Module",
+                                                            "Payment Type",
+                                                            "Payment Bank",
+                                                            "Branch",
+                                                            "Status"
+                                                          ])
+                                                            Expanded(
+                                                              child: Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                children: [
+                                                                  // Label at the top
+                                                                  CustomText(
+                                                                    text: label,
+                                                                    fontSize:
+                                                                        isTablet
+                                                                            ? 12
+                                                                            : 9,
+                                                                    fontFamily:
+                                                                        'poppinsRegular',
+                                                                    color: AppColor
+                                                                        .cardTitleSubColor,
+                                                                  ),
+                                                                  SizedBox(
+                                                                      height:
+                                                                          5),
+                                                                  // Dropdown below the label with border
+                                                                  Padding(
+                                                                    padding:
+                                                                        const EdgeInsets
+                                                                            .all(
+                                                                            3.0),
+                                                                    child:
+                                                                        Container(
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        border:
+                                                                            Border.all(
+                                                                          color:
+                                                                              AppColor.dividerColor, // Border color
+                                                                          width:
+                                                                              1.0, // Border width
+                                                                        ),
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(4.0), // Rounded corners
+                                                                      ),
+                                                                      padding: EdgeInsets.symmetric(
+                                                                          horizontal:
+                                                                              8.0), // Inner padding
+                                                                      child: DropdownButton<
+                                                                          String>(
+                                                                        isExpanded:
+                                                                            true,
+                                                                        dropdownColor:
+                                                                            Colors.white, // Dropdown background color
+                                                                        value: impsInquiryProvider
+                                                                            .dropdownValues[label], // Current value
+                                                                        onChanged:
+                                                                            (String?
+                                                                                newValue) {
+                                                                          setState(
+                                                                              () {
+                                                                            impsInquiryProvider.dropdownValues[label] =
+                                                                                newValue!;
+                                                                          });
+                                                                        },
+                                                                        items: impsInquiryProvider
+                                                                            .dropdownOptions[
+                                                                                label]!
+                                                                            .map<DropdownMenuItem<String>>((String
+                                                                                value) {
+                                                                          return DropdownMenuItem<
+                                                                              String>(
+                                                                            value:
+                                                                                value,
+                                                                            child:
+                                                                                Text(
+                                                                              value,
+                                                                              style: TextStyle(
+                                                                                color: Colors.black, // Text color
+                                                                                fontSize: isTablet ? 12 : 9,
+                                                                              ),
+                                                                            ),
+                                                                          );
+                                                                        }).toList(),
+                                                                        style:
+                                                                            TextStyle(
+                                                                          color:
+                                                                              Colors.black, // Selected item text color
+                                                                        ),
+                                                                        underline:
+                                                                            SizedBox(), // Removes the default underline
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                        ],
+                                                      ),
+                                                    ),
+
+                                                    SizedBox(height: 10),
+                                                    // To Date Picker
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          // From Date
+                                                          Expanded(
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                CustomText(
+                                                                  text:
+                                                                      "From Date",
+                                                                  fontSize:
+                                                                      isTablet
+                                                                          ? 12
+                                                                          : 9,
+                                                                  fontFamily:
+                                                                      'poppinsRegular',
+                                                                  color: AppColor
+                                                                      .cardTitleSubColor,
+                                                                ),
+                                                                SizedBox(
+                                                                    height: 5),
+                                                                Container(
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    border: Border.all(
+                                                                        color: AppColor
+                                                                            .dividerColor),
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            4.0),
+                                                                  ),
+                                                                  padding: EdgeInsets
+                                                                      .symmetric(
+                                                                          horizontal:
+                                                                              8.0),
+                                                                  child:
+                                                                      TextFormField(
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .black),
+
+                                                                    controller:
+                                                                        fromDateController, // You'll need to define this controller
+                                                                    decoration:
+                                                                        InputDecoration(
+                                                                      hintText:
+                                                                          "Select From Date",
+                                                                      border: InputBorder
+                                                                          .none,
+                                                                      suffixIcon:
+                                                                          Icon(Icons
+                                                                              .calendar_today),
+                                                                    ),
+                                                                    readOnly:
+                                                                        true,
+                                                                    onTap:
+                                                                        () async {
+                                                                      DateTime?
+                                                                          pickedDate =
+                                                                          await showDatePicker(
+                                                                        context:
+                                                                            context,
+                                                                        initialDate:
+                                                                            DateTime.now(),
+                                                                        firstDate:
+                                                                            DateTime(2000),
+                                                                        lastDate:
+                                                                            DateTime(2101),
+                                                                      );
+                                                                      if (pickedDate !=
+                                                                          null) {
+                                                                        setState(
+                                                                            () {
+                                                                          fromDateController.text =
+                                                                              DateFormat('dd-MMM-yyyy').format(pickedDate);
+                                                                        });
+                                                                      }
+                                                                    },
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+
+                                                          SizedBox(
+                                                              width:
+                                                                  10), // Space between From Date and To Date
+
+                                                          // To Date
+                                                          Expanded(
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                CustomText(
+                                                                  text:
+                                                                      "To Date",
+                                                                  fontSize:
+                                                                      isTablet
+                                                                          ? 12
+                                                                          : 9,
+                                                                  fontFamily:
+                                                                      'poppinsRegular',
+                                                                  color: AppColor
+                                                                      .cardTitleSubColor,
+                                                                ),
+                                                                SizedBox(
+                                                                    height: 5),
+                                                                Container(
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    border: Border.all(
+                                                                        color: AppColor
+                                                                            .dividerColor),
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            4.0),
+                                                                  ),
+                                                                  padding: EdgeInsets
+                                                                      .symmetric(
+                                                                          horizontal:
+                                                                              8.0),
+                                                                  child:
+                                                                      TextFormField(
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .black),
+                                                                    controller:
+                                                                        toDateController, // You'll need to define this controller
+                                                                    decoration:
+                                                                        InputDecoration(
+                                                                      labelStyle:
+                                                                          TextStyle(
+                                                                        color: Colors
+                                                                            .black, // Change color based on whether date is selected
+                                                                      ),
+                                                                      hintText:
+                                                                          "Select To Date",
+                                                                      border: InputBorder
+                                                                          .none,
+                                                                      suffixIcon:
+                                                                          Icon(Icons
+                                                                              .calendar_today),
+                                                                    ),
+                                                                    readOnly:
+                                                                        true,
+                                                                    onTap:
+                                                                        () async {
+                                                                      DateTime?
+                                                                          pickedDate =
+                                                                          await showDatePicker(
+                                                                        context:
+                                                                            context,
+                                                                        initialDate:
+                                                                            DateTime.now(),
+                                                                        firstDate:
+                                                                            DateTime(2000),
+                                                                        lastDate:
+                                                                            DateTime(2101),
+                                                                      );
+                                                                      if (pickedDate !=
+                                                                          null) {
+                                                                        setState(
+                                                                            () {
+                                                                          toDateController.text =
+                                                                              DateFormat('dd-MMM-yyyy').format(pickedDate);
+                                                                        });
+                                                                      }
+                                                                    },
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                        height:
+                                                            5), // Space after the row
+// Generate Button
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerRight,
+                                                      child: CustomButton(
+                                                        customWidget: null,
+                                                        text: 'Generate',
+                                                        txtColor: AppColor
+                                                            .primaryColor,
+                                                        btnColor: AppColor
+                                                            .drawerImgTileColor,
+                                                        borderRadious: 8,
+                                                        width: 143,
+                                                        height: 40,
+                                                        onPressed: () {},
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 5),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        : const SizedBox.shrink(),
                                     if (impsInquiryProvider
                                             .impsTableModels.items !=
                                         null)
@@ -338,9 +660,11 @@ class ImpsInquiryReport extends StatelessWidget {
                                                       dataRowMinHeight: 0,
                                                     ),
                                                     textTheme: const TextTheme(
-                                                        bodySmall: TextStyle(
-                                                            color: AppColor
-                                                                .card5)),
+                                                      bodySmall: TextStyle(
+                                                        color: Colors.grey,
+                                                        // Use bodyLarge instead of bodyText2
+                                                      ),
+                                                    ),
                                                   ),
                                                   child: Padding(
                                                     padding:
@@ -479,51 +803,9 @@ class TableDataSource extends DataTableSource {
         DataCell(Text(row.mODDESCR ?? '')),
         DataCell(Text(row.bRANCHNAME ?? '')),
         DataCell(Text("${row.bRANCHID ?? ''}")),
-        DataCell(InkWell(
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    backgroundColor: AppColor.primaryColor,
-                    content: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.50,
-                      height: MediaQuery.of(context).size.height * 0.40,
-                      child: ListView(
-                          scrollDirection: Axis.vertical, children: []),
-                    ), // replace with your image path
-                    actions: [
-                      Center(
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColor.drawerImgTileColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          onPressed: () {
-                            context.pop();
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Text(
-                              'Ok',
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-            child: Text(
-              row.dOCID ?? '',
-              style: _highLiteTxtStyle,
-            ))),
+        DataCell(Text(
+          row.dOCID ?? '',
+        )),
         DataCell(Text(row.cUSTID ?? '')),
         DataCell(Text("${row.aMOUNT ?? ''}")),
         DataCell(Text(row.vALUEDATE ?? '')),

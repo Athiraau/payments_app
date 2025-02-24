@@ -24,7 +24,7 @@ class ImpsInquiryRepository {
         baseKey: EncryptionValue.keyAsString,
         ivKey: EncryptionValue.ivAsString);
     dynamic response = await _apiService.getApi(
-        "${ApiEndPoints.baseURL}${ApiEndPoints.paymentRadio}${"10905"}/1");
+        "${ApiEndPoints.baseURL}${ApiEndPoints.paymentRadio}${"11916"}/1");
     return response;
   }
 

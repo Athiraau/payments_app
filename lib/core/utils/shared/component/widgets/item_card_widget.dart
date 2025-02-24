@@ -55,7 +55,7 @@ class BuildCardItem extends StatelessWidget {
         ),
         padding: const EdgeInsets.all(12.0),
         child: loadingStatus == null || loadingStatus == false
-            ? Row(
+            ? Column(
                 children: [
                   SvgPicture.asset(
                     item['logo'] as String,
@@ -75,9 +75,15 @@ class BuildCardItem extends StatelessWidget {
                   ),
                 ],
               )
-            : const CircularProgressIndicator(
-                color: AppColor.drawerColor,
-              ),
+            :   Container(
+      color:  item['cardColor'] as Color
+      , // Semi-transparent overlay
+      child: const Center(
+        child: CircularProgressIndicator(
+          color: Colors.black,
+        ),
+      ),
+    ),
       ),
     );
   }
@@ -86,10 +92,11 @@ class BuildCardItem extends StatelessWidget {
 // Grid Item Widget Class
 class BuildGridItem extends StatelessWidget {
   final Map<String, dynamic> item;
-
+  final bool? loadingStatus;
   const BuildGridItem({
     Key? key,
     required this.item,
+    this.loadingStatus,
   }) : super(key: key);
 
   @override
@@ -99,26 +106,35 @@ class BuildGridItem extends StatelessWidget {
         color: item['cardColor'] as Color,
         borderRadius: BorderRadius.circular(8.0),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(height: 8),
-          SvgPicture.asset(
-            item['logo'] as String,
-            width: 40,
-            height: 40,
-            color: item['cardTitle'] as Color,
+      child:loadingStatus == null || loadingStatus == false? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 8),
+                SvgPicture.asset(
+                  item['logo'] as String,
+                  width: 40,
+                  height: 40,
+                  color: item['cardTitle'] as Color,
+                ),
+                const SizedBox(height: 8),
+                CustomText(
+                  text: item['title'] as String,
+                  color: item['cardTitle'] as Color,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  fontFamily: 'poppinsRegular', // Set fontFamily
+                ),
+              ],
+            ): Container(
+        color:  item['cardColor'] as Color
+        , // Semi-transparent overlay
+        child: const Center(
+          child: CircularProgressIndicator(
+            color: Colors.black,
           ),
-          const SizedBox(height: 8),
-          CustomText(
-            text: item['title'] as String,
-            color: item['cardTitle'] as Color,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-            fontFamily: 'poppinsRegular', // Set fontFamily
-          ),
-        ],
+        ),
       ),
     );
+
   }
 }

@@ -64,6 +64,21 @@ class ImpsInquiryProvider extends ChangeNotifier {
   set formattedTime(String value) {
     _formattedTime = value;
   }
+  Map<String, String> dropdownValues = {
+    "Module": "Select Module",
+    "Payment Type": "Select Type",
+    "Payment Bank": "Select Bank",
+    "Branch": "Select Branch",
+    "Status": "Select Status",
+  };
+
+  Map<String, List<String>> dropdownOptions = {
+    "Module": ["Select Module", "Module 1", "Module 2"],
+    "Payment Type": ["Select Type", "Credit", "Debit"],
+    "Payment Bank": ["Select Bank", "Bank A", "Bank B"],
+    "Branch": ["Select Branch", "Branch X", "Branch Y"],
+    "Status": ["Select Status", "Active", "Inactive"],
+  };
 
   Future<void> setCurBranchName() async {
     final _appCacheHelper = AppCacheHelper();
@@ -167,25 +182,7 @@ class ImpsInquiryProvider extends ChangeNotifier {
       impsTableModels = ImpsTableModel.fromJsonList(demoDataList);
       notifyListeners();
 
-      // for (ImpsTableItem item in impsTableModels.items) {
-      //   print('MOD DESCR: ${item.mODDESCR}');
-      //   print('Branch Name: ${item.bRANCHNAME}');
-      //   print('Branch ID: ${item.bRANCHID}');
-      //   print('Doc ID: ${item.dOCID}');
-      //   print('Customer ID: ${item.cUSTID}');
-      //   print('Amount: ${item.aMOUNT}');
-      //   print('Value Date: ${item.vALUEDATE}');
-      //   print('Send Date: ${item.sENDDATE}');
-      //   print('Send Transaction ID: ${item.sENDTRANSID}');
-      //   print('Co-operate ID: ${item.cORPORATEID}');
-      //   print('Batch Number: ${item.bATCHNO}');
-      //   print('Customer Name: ${item.cUSTNAME}');
-      //   print('Beneficiary Account: ${item.bENEFICIARYACCOUNT}');
-      //   print('IFSC Code: ${item.iFSCCODE}');
-      //   print('SEQ Number: ${item.sEQNO}');
-      //   print('------------------------------------');
-      // }
-      // // impsTableModels = ImpsTableModel.fromJson(demoDataList as Map<String, dynamic>);
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
                 context.goNamed(RoutesName.impsInquiryReport);
               });

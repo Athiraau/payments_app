@@ -263,9 +263,20 @@ class PaymentTabItem extends StatelessWidget {
                 context.go(item['route'] as String);
               }
             },
-            child: BuildCardItem(
-              item: item,
-            ),
+            child:Consumer<PaymentsProvider>(
+            builder: (context, paymentStatusProvider, child) {
+              final isLoading =
+                  paymentStatusProvider.currentLoadingRoute == item['route'];
+            return  BuildCardItem(
+                item: item,
+              loadingStatus : isLoading,
+
+
+            );
+
+            },
+            )
+
           ),
         );
       },
@@ -314,14 +325,24 @@ class PaymentTabItem extends StatelessWidget {
               final paymentStatusProvider =
                   Provider.of<PaymentsProvider>(context, listen: false);
               paymentStatusProvider.chkImpsStatus(context: context);
+
             } else {
               context.go(item['route'] as String);
             }
           },
-          child: BuildGridItem(
+          child:
+          Consumer<PaymentsProvider>(
+            builder: (context, paymentStatusProvider, child) {
+              final isLoading =
+                  paymentStatusProvider.currentLoadingRoute == item['route'];
 
-            item: item,
+              return BuildGridItem(
+                item: item,
+                loadingStatus : isLoading, // Pass loading state only for this item
+              );
+            },
           ),
+
         );
       },
     );

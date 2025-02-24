@@ -10,8 +10,6 @@ import '../../../../../../../../core/utils/shared/component/widgets/custom_butto
 import '../../../../../../../../core/utils/shared/component/widgets/custom_text.dart';
 import '../../../../../../../../core/utils/shared/constant/assets_path.dart';
 import '../../../../../../../bread_crumbs/view/bread_crumbs.dart';
-import '../../../model/doc_id_model1.dart';
-import '../../../model/doc_id_model2.dart';
 import '../../../model/pay_status_table_model.dart';
 
 class PaymentStatusReport extends StatelessWidget {
@@ -369,6 +367,7 @@ class PaymentStatusReport extends StatelessWidget {
 class TableDataSource extends DataTableSource {
   final List<Response> data;
   final BuildContext context;
+
   TableDataSource(List<Response>? data, this.context) : data = data ?? [];
 
   @override
@@ -389,118 +388,51 @@ class TableDataSource extends DataTableSource {
         DataCell(Text(row.mODDESCR ?? '')),
         DataCell(Text(row.bRANCHNAME ?? '')),
         DataCell(Text("${row.bRANCHID ?? ''}")),
-        DataCell(
-          InkWell(
+        DataCell(InkWell(
             onTap: () {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                final paymentStatusProvider =
-                    Provider.of<PaymentStatusProvider>(context, listen: false);
-                paymentStatusProvider.fetchDocIdData1(
-                  context: context,
-                  docId: row.dOCID ?? '',
-                );
-                paymentStatusProvider.fetchDocIdData2(
-                  context: context,
-                  docId: row.dOCID ?? '',
-                );
-                Future.microtask(() {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        backgroundColor: AppColor.primaryColor,
-                        content: SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.40,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Center(
-                                  child: CustomText(
-                                    text: "Transaction Details",
-                                    fontSize: 14,
-                                    fontFamily: 'poppinsSemiBold',
-                                    color: AppColor.appBarColor,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.50,
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: DocIdDataTable1(),
-                                  ),
-                                ),
-                                Center(
-                                  child: CustomText(
-                                    text: "Neft Customer Details",
-                                    fontSize: 14,
-                                    fontFamily: 'poppinsSemiBold',
-                                    color: AppColor.appBarColor,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.50,
-                                  child: SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: DocIdDataTable2(),
-                                  ),
-                                ),
-                                // Padding(
-                                //   padding: const EdgeInsets.all(8.0),
-                                //   child: Text(
-                                //     'Teachers',
-                                //     style: TextStyle(
-                                //         fontSize: 20,
-                                //         fontWeight: FontWeight.bold),
-                                //   ),
-                                // ),
-                              ],
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    backgroundColor: AppColor.primaryColor,
+                    content: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.50,
+                      height: MediaQuery.of(context).size.height * 0.40,
+                      child: ListView(
+                          scrollDirection: Axis.vertical, children: []),
+                    ), // replace with your image path
+                    actions: [
+                      Center(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColor.drawerImgTileColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: () {
+                            context.pop();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(5),
+                            child: Text(
+                              'Ok',
+                              style: const TextStyle(
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
-                        actions: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColor.drawerImgTileColor,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  context.pop();
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(5),
-                                  child: Text(
-                                    'Close',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      );
-                    },
+                      ),
+                    ],
                   );
-                });
-              });
+                },
+              );
             },
             child: Text(
               row.dOCID ?? '',
               style: _highLiteTxtStyle,
-            ),
-          ),
-        ),
+            ))),
         DataCell(Text(row.cUSTID ?? '')),
         DataCell(Text("${row.aMOUNT ?? ''}")),
         DataCell(Text(row.vALUEDATE ?? '')),
@@ -525,178 +457,6 @@ class TableDataSource extends DataTableSource {
   @override
   int get selectedRowCount => 0;
 }
-
-class DocIdDataTable1 extends StatelessWidget {
-  const DocIdDataTable1({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<PaymentStatusProvider>(
-      builder: (context, paymentStatusProvider, child) {
-        return Theme(
-            data: ThemeData(
-              cardTheme: CardTheme(
-                color: AppColor.tableHeaderColor,
-                elevation: 8,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              dataTableTheme: DataTableThemeData(
-                headingTextStyle: _headTxtStyle2,
-                dataRowColor: MaterialStateProperty.all(Colors.white),
-                dataTextStyle: _tableRowTxtStyle,
-                dividerThickness: 0,
-                dataRowMaxHeight: 56,
-                columnSpacing: 60,
-                horizontalMargin: 30.0,
-                dataRowMinHeight: 15,
-              ),
-              textTheme:
-                  const TextTheme(bodySmall: TextStyle(color: AppColor.card5)),
-            ),
-            child: DataTable(
-              columns: const [
-                DataColumn(label: Text('Module')),
-                DataColumn(label: Text('Branch')),
-                DataColumn(label: Text('BranchId')),
-                DataColumn(label: Text('DocId')),
-                DataColumn(label: Text('CustomerId')),
-                DataColumn(label: Text('Amount')),
-                DataColumn(label: Text('TraDate')),
-                DataColumn(label: Text('SendDate')),
-                DataColumn(label: Text('SendTransId')),
-                DataColumn(label: Text('CorporateId')),
-                DataColumn(label: Text('BatchNumber')),
-              ],
-              rows: paymentStatusProvider.docIdModel1.docId1response!
-                  .asMap() // Convert the list to a map to get the index
-                  .map((index, e) {
-                    Color rowColor = index.isEven
-                        ? Colors.white
-                        : AppColor
-                            .tableRowColor; // Set row color based on index
-                    return MapEntry(
-                      index,
-                      DataRow(
-                        color: MaterialStateProperty.all(
-                            rowColor), // Set the row color
-                        cells: [
-                          DataCell(Text(e.mODDESCR ?? '')),
-                          DataCell(Text(e.bRANCHNAME ?? '')),
-                          DataCell(Text("${e.bRANCHID ?? ''}")),
-                          DataCell(Text(e.dOCID ?? '')),
-                          DataCell(Text(e.cUSTID ?? '')),
-                          DataCell(Text("${e.aMOUNT ?? ''}")),
-                          DataCell(Text(e.vALUEDATE ?? '')),
-                          DataCell(Text(e.sENDDATE ?? '')),
-                          DataCell(Text(e.sENDTRANSID ?? '')),
-                          DataCell(Text(e.cORPORATEID ?? '')),
-                          DataCell(Text(e.bATCHNO ?? '')),
-                        ],
-                      ),
-                    );
-                  })
-                  .values // Get the list of DataRow objects
-                  .toList(),
-            ));
-      },
-    );
-  }
-}
-
-class DocIdDataTable2 extends StatelessWidget {
-  const DocIdDataTable2({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<PaymentStatusProvider>(
-      builder: (context, paymentStatusProvider, child) {
-        return Theme(
-            data: ThemeData(
-              cardTheme: CardTheme(
-                color: AppColor.tableHeaderColor,
-                elevation: 8,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              dataTableTheme: DataTableThemeData(
-                headingTextStyle: _headTxtStyle2,
-                dataRowColor: MaterialStateProperty.all(Colors.white),
-                dataTextStyle: _tableRowTxtStyle,
-                dividerThickness: 0,
-                dataRowMaxHeight: 56,
-                columnSpacing: 60,
-                horizontalMargin: 30.0,
-                dataRowMinHeight: 15,
-              ),
-              textTheme:
-                  const TextTheme(bodySmall: TextStyle(color: AppColor.card5)),
-            ),
-            child: DataTable(
-              columns: const [
-                DataColumn(label: Text('Customer Name')),
-                DataColumn(label: Text('Account Number')),
-                DataColumn(label: Text('IFSC Code')),
-                DataColumn(label: Text('Bank')),
-                DataColumn(label: Text('Status')),
-                DataColumn(label: Text('CustRefId')),
-              ],
-              rows: paymentStatusProvider.docIdModel2.docId2response!
-                  .asMap() // Convert the list to a map to get the index
-                  .map((index, e) {
-                    Color rowColor = index.isEven
-                        ? Colors.white
-                        : AppColor
-                            .tableRowColor; // Set row color based on index
-                    return MapEntry(
-                      index,
-                      DataRow(
-                        color: MaterialStateProperty.all(
-                            rowColor), // Set the row color
-                        cells: [
-                          DataCell(Text(e.cUSTNAME ?? '')),
-                          DataCell(Text(e.bENEFICIARYACCOUNT ?? '')),
-                          DataCell(Text(e.iFSCCODE ?? '')),
-                          DataCell(Text(e.bANKNAME ?? '')),
-                          DataCell(Text(e.sTATUS ?? '')),
-                          DataCell(Text(e.cUSTID ?? '')),
-                        ],
-                      ),
-                    );
-                  })
-                  .values // Get the list of DataRow objects
-                  .toList(),
-            ));
-      },
-    );
-  }
-}
-
-const _tableRowTxtStyle = TextStyle(
-    fontFamily: 'poppinsRegular',
-    fontSize: 10,
-    color: AppColor.cardTitleSubColor);
-
-const _headTxtStyle = TextStyle(
-  fontFamily: 'poppinsSemiBold',
-  fontSize: 10,
-  color: AppColor.primaryColor,
-);
-const _headTxtStyle2 = TextStyle(
-  fontFamily: 'poppinsRegular',
-  fontSize: 12,
-  color: AppColor.cardTitleSubColor,
-);
-const _highLiteTxtStyle = TextStyle(
-  shadows: [Shadow(color: AppColor.highLiteTxt, offset: Offset(0, -5))],
-  color: Colors.transparent,
-  decoration: TextDecoration.underline,
-  decorationColor: AppColor.dividerColor,
-  decorationThickness: 4,
-  decorationStyle: TextDecorationStyle.dashed,
-);
 
 Widget _buildShimmerList() {
   return Padding(
@@ -732,3 +492,23 @@ Widget _buildShimmerList() {
     ),
   );
 }
+
+const _tableRowTxtStyle = TextStyle(
+    fontFamily: 'poppinsRegular',
+    fontSize: 10,
+    color: AppColor.cardTitleSubColor);
+
+const _headTxtStyle = TextStyle(
+  fontFamily: 'poppinsSemiBold',
+  fontSize: 13,
+  color: AppColor.primaryColor,
+);
+
+const _highLiteTxtStyle = TextStyle(
+  shadows: [Shadow(color: AppColor.highLiteTxt, offset: Offset(0, -5))],
+  color: Colors.transparent,
+  decoration: TextDecoration.underline,
+  decorationColor: AppColor.dividerColor,
+  decorationThickness: 4,
+  decorationStyle: TextDecorationStyle.dashed,
+);

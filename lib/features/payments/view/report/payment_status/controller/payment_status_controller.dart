@@ -16,8 +16,6 @@ import '../../../../../../core/helpers/encryption/app_encryption_helper.dart';
 import '../../../../../../core/helpers/encryption/encryption_value.dart';
 import '../../../../../../core/helpers/routes/app_route_name.dart';
 import '../../../../../../core/utils/shared/component/widgets/custom_toast.dart';
-import '../model/doc_id_model1.dart';
-import '../model/doc_id_model2.dart';
 import '../model/pay_status_table_model.dart';
 import '../repository/payment_status_repository.dart';
 import 'dart:html' as html;
@@ -449,18 +447,15 @@ class PaymentStatusProvider extends ChangeNotifier {
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4.landscape,
         header: (pw.Context context) {
-          return pw.Column(children: [
-            pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.center,
-                crossAxisAlignment: pw.CrossAxisAlignment.center,
-                children: [
-                  pw.SizedBox(
-                      height: 25,
-                      width: 100,
-                      child: pw.Image(image, fit: pw.BoxFit.fill)),
-                ]),
-            pw.SizedBox(height: 10)
-          ]);
+          return pw.Column(children: [pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              crossAxisAlignment: pw.CrossAxisAlignment.center,
+              children: [
+                pw.SizedBox(
+                    height: 25,
+                    width: 100,
+                    child: pw.Image(image, fit: pw.BoxFit.fill)),
+              ]),pw.SizedBox(height: 10)]);
         },
         footer: (pw.Context context) {
           return pw.Text(
@@ -541,48 +536,21 @@ class PaymentStatusProvider extends ChangeNotifier {
     }
   }
 
-  //fetch docId data1
-  var docIdModel1 = DocIdModel1();
-  Future<void> fetchDocIdData1(
-      {required BuildContext context, required String docId}) async {
+  //fetch docId data
+  Future<void> fetchDocIdData(
+      {required BuildContext context, required String id}) async {
     try {
       isLoading = true;
       notifyListeners();
-      final response = await _api.fetchDocIdData1(docId: docId);
+      final response =
+      await _api.fetchPayStatusData(ckBoxId: _selectedOption, id: id);
 
       if (response != null && response['status'] == 200) {
         if (response['data']['response'] != null) {
-          docIdModel1 = DocIdModel1.fromJson(response['data']);
-          notifyListeners();
-        } else {
-          CustomToast.showCustomErrorToast(message: "response is empty");
-        }
-      } else {
-        CustomToast.showCustomErrorToast(message: "Unexpected error occurred");
-        notifyListeners();
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error $e");
-      }
-    } finally {
-      isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  //fetch docId data2
-  var docIdModel2 = DocIdModel2();
-  Future<void> fetchDocIdData2(
-      {required BuildContext context, required String docId}) async {
-    try {
-      isLoading = true;
-      notifyListeners();
-      final response = await _api.fetchDocIdData1(docId: docId);
-
-      if (response != null && response['status'] == 200) {
-        if (response['data']['response'] != null) {
-          docIdModel2 = DocIdModel2.fromJson(response['data']);
+          payStatusTableModel = PayStatusTableModel.fromJson(response['data']);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context.goNamed(RoutesName.paymentStatusReport);
+          });
           notifyListeners();
         } else {
           CustomToast.showCustomErrorToast(message: "response is empty");
