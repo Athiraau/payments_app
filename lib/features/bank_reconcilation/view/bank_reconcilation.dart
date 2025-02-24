@@ -246,10 +246,6 @@ class BankRecoTabItem extends StatelessWidget {
               if (item['route'] == RoutesPath.re_initiate) {
                 context.goNamed(
                   RoutesName.reInitiate,
-                  pathParameters: {
-                    "userId": "1001",
-                    "userName": "Raihan",
-                  },
                 );
               } else {
                 context.go(item['route'] as String);
@@ -278,10 +274,6 @@ class BankRecoTabItem extends StatelessWidget {
             if (item['route'] == RoutesPath.re_initiate) {
               context.goNamed(
                 RoutesName.reInitiate,
-                pathParameters: {
-                  "userId": "1001",
-                  "userName": "Raihan",
-                },
               );
             } else {
               context.go(item['route'] as String);

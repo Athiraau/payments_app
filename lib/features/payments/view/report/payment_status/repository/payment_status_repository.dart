@@ -24,7 +24,7 @@ class PaymentStatusRepository {
         baseKey: EncryptionValue.keyAsString,
         ivKey: EncryptionValue.ivAsString);
     dynamic response = await _apiService.getApi(
-        "${ApiEndPoints.baseURL}${ApiEndPoints.paymentRadio}$_decrptEmpId/1");
+        "${ApiEndPoints.baseURL}${ApiEndPoints.paymentRadio}${"11916"}/1");
     return response;
   }
 }

@@ -11,6 +11,7 @@ import 'package:payments_application/features/payments/view/payments/bulk_reinit
 import 'package:payments_application/features/payments/view/payments/debit_advice_branch/view/advise_branch_page.dart';
 import 'package:payments_application/features/payments/view/payments_page.dart';
 import 'package:payments_application/features/payments/view/report/imps_inquiry/view/imps_inquiry.dart';
+import 'package:payments_application/features/payments/view/report/imps_inquiry/view/imps_report/view/imps_report.dart';
 import 'package:payments_application/features/payments/view/report/neft_details/view/neft_details.dart';
 import 'package:payments_application/features/payments/view/report/payment_ogl_report/view/payment_ogl_report.dart';
 import 'package:payments_application/features/payments/view/report/payment_report/view/payment_report_page.dart';
@@ -72,10 +73,11 @@ class AppRoutes {
       routes: [
         GoRoute(
           name: RoutesName.splash,
-          path: '/splash/session=:session/token=:token',
+          path: '/requesthandler',
           pageBuilder: (context, state) {
-            final curSession = state.pathParameters['session'] ?? '';
-            final curToken = state.pathParameters['token'] ?? '';
+            final curSession = state.queryParams['session'] ??
+                '34C94FBEFBD54C3036D2001D88A3749E738CB833FCA0D0099BF7DC612E75598C195656ABC439E04BB11ED5A948558AD4836C0E0C92B7B315B04F012A3B7673D4';
+            final curToken = state.queryParams['token'] ?? '';
             return CustomTransitionPage<void>(
               key: state.pageKey,
               child: SplashScreen(
@@ -123,12 +125,12 @@ class AppRoutes {
                     routes: [
                       GoRoute(
                         name: RoutesName.reInitiate,
-                        path: 're_initiate/userId=:userId/userName=:userName',
+                        path: 're_initiate',
                         pageBuilder: (context, state) {
                           final encryptedUserId =
-                              state.pathParameters['userId'] ?? '';
+                              state.queryParams['userId'] ?? '';
                           final encryptedUserName =
-                              state.pathParameters['userName'] ?? '';
+                              state.queryParams['userName'] ?? '';
 
                           _addBreadCrumbs(context, "Re-initiate");
 
@@ -334,20 +336,36 @@ class AppRoutes {
                             ),
                           ]),
                       GoRoute(
-                        name: RoutesName.impsInquiry,
-                        path: 'imps_inquiry',
-                        pageBuilder: (context, state) {
-                          _addBreadCrumbs(context, 'Imps Inquiry');
-                          return CustomTransitionPage<void>(
-                            key: state.pageKey,
-                            child: const ImpsInquiry(),
-                            transitionsBuilder: (context, animation,
-                                    secondaryAnimation, child) =>
-                                FadeTransition(
-                                    opacity: animation, child: child),
-                          );
-                        },
-                      ),
+                          name: RoutesName.impsInquiry,
+                          path: 'imps_inquiry',
+                          pageBuilder: (context, state) {
+                            _addBreadCrumbs(context, 'Imps Inquiry');
+                            return CustomTransitionPage<void>(
+                              key: state.pageKey,
+                              child: const ImpsInquiry(),
+                              transitionsBuilder: (context, animation,
+                                      secondaryAnimation, child) =>
+                                  FadeTransition(
+                                      opacity: animation, child: child),
+                            );
+                          },
+                          routes: [
+                            GoRoute(
+                              name: RoutesName.impsInquiryReport,
+                              path: 'imps_inquiry/imps_inquiry_report',
+                              pageBuilder: (context, state) {
+                                _addBreadCrumbs(context, 'Imps Inquiry report');
+                                return CustomTransitionPage<void>(
+                                  key: state.pageKey,
+                                  child: const ImpsInquiryReport(),
+                                  transitionsBuilder: (context, animation,
+                                          secondaryAnimation, child) =>
+                                      FadeTransition(
+                                          opacity: animation, child: child),
+                                );
+                              },
+                            ),
+                          ]),
                       GoRoute(
                         name: RoutesName.neftDeatils,
                         path: 'neft_deatils',

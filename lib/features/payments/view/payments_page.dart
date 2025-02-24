@@ -39,6 +39,7 @@ class _PaymentsPageState extends State<PaymentsPage> {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
+    final paymentProvider = Provider.of<PaymentsProvider>(context);
     return Container(
       width: size.width,
       height: size.height,
@@ -245,7 +246,7 @@ class PaymentTabItem extends StatelessWidget {
               if (item['route'] == RoutesPath.re_initiate) {
                 context.goNamed(
                   RoutesName.reInitiate,
-                  pathParameters: {
+                  queryParams: {
                     "userId": "1001",
                     "userName": "Raihan",
                   },
@@ -254,6 +255,10 @@ class PaymentTabItem extends StatelessWidget {
                 final paymentStatusProvider =
                     Provider.of<PaymentsProvider>(context, listen: false);
                 paymentStatusProvider.chkAuthPayStatus(context: context);
+              } else if (item['route'] == RoutesPath.impsInquiry) {
+                final paymentStatusProvider =
+                    Provider.of<PaymentsProvider>(context, listen: false);
+                paymentStatusProvider.chkImpsStatus(context: context);
               } else {
                 context.go(item['route'] as String);
               }
@@ -294,20 +299,27 @@ class PaymentTabItem extends StatelessWidget {
                 ivKey: EncryptionValue.ivAsString,
               );
 
-              context.goNamed(RoutesName.reInitiate, pathParameters: {
-                'userId': encryptedUserId,
-                'userName': encryptedUserName,
-              });
-
+              context.goNamed(
+                RoutesName.reInitiate,
+                queryParams: {
+                  "userId": "1001",
+                  "userName": "Raihan",
+                },
+              );
             } else if (item['route'] == RoutesPath.paymentStatus) {
               final paymentStatusProvider =
                   Provider.of<PaymentsProvider>(context, listen: false);
               paymentStatusProvider.chkAuthPayStatus(context: context);
+            } else if (item['route'] == RoutesPath.impsInquiry) {
+              final paymentStatusProvider =
+                  Provider.of<PaymentsProvider>(context, listen: false);
+              paymentStatusProvider.chkImpsStatus(context: context);
             } else {
               context.go(item['route'] as String);
             }
           },
           child: BuildGridItem(
+
             item: item,
           ),
         );

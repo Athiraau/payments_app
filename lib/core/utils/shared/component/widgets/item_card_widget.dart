@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:payments_application/core/utils/config/styles/colors.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'custom_text.dart';
@@ -35,10 +36,12 @@ class ShimmerWidget extends StatelessWidget {
 // Card Item Widget Class
 class BuildCardItem extends StatelessWidget {
   final Map<String, dynamic> item;
+  final bool? loadingStatus;
 
   const BuildCardItem({
     Key? key,
     required this.item,
+    this.loadingStatus,
   }) : super(key: key);
 
   @override
@@ -51,26 +54,30 @@ class BuildCardItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(10.0),
         ),
         padding: const EdgeInsets.all(12.0),
-        child: Row(
-          children: [
-            SvgPicture.asset(
-              item['logo'] as String,
-              width: 25,
-              height: 25,
-              color: item['cardTitle'] as Color,
-            ),
-            const SizedBox(width: 15),
-            Expanded(
-              child: CustomText(
-                text: item['title'] as String,
-                color: item['cardTitle'] as Color,
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
-                fontFamily: 'poppinsRegular',  // Set fontFamily
+        child: loadingStatus == null || loadingStatus == false
+            ? Row(
+                children: [
+                  SvgPicture.asset(
+                    item['logo'] as String,
+                    width: 25,
+                    height: 25,
+                    color: item['cardTitle'] as Color,
+                  ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: CustomText(
+                      text: item['title'] as String,
+                      color: item['cardTitle'] as Color,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      fontFamily: 'poppinsRegular', // Set fontFamily
+                    ),
+                  ),
+                ],
+              )
+            : const CircularProgressIndicator(
+                color: AppColor.drawerColor,
               ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -108,7 +115,7 @@ class BuildGridItem extends StatelessWidget {
             color: item['cardTitle'] as Color,
             fontWeight: FontWeight.bold,
             fontSize: 12,
-            fontFamily: 'poppinsRegular',  // Set fontFamily
+            fontFamily: 'poppinsRegular', // Set fontFamily
           ),
         ],
       ),

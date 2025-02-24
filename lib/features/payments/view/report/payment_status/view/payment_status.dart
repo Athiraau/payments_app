@@ -20,19 +20,13 @@ class PaymentStatus extends StatefulWidget {
 }
 
 class _PaymentStatusState extends State<PaymentStatus> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<PaymentStatusProvider>(context, listen: false).chkRRNumStatus();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     final _textController = TextEditingController();
     final isTablet = size.width >= 900;
+
     return Container(
       width: size.width,
       height: size.height,
@@ -213,20 +207,16 @@ class _PaymentStatusState extends State<PaymentStatus> {
                                           const SizedBox(
                                             height: 5,
                                           ),
-                                          paymentStatusProvider.showRRnum
-                                              ? _customRadioTile(
-                                                  title: 'RR Number',
-                                                  value: '3',
-                                                  groupValue:
-                                                      paymentStatusProvider
-                                                          .selectedOption,
-                                                  onChanged: (value) {
-                                                    paymentStatusProvider
-                                                        .updateSelectedOption(
-                                                            value!);
-                                                  },
-                                                )
-                                              : const SizedBox.shrink(),
+                                          paymentStatusProvider.showRRnum?_customRadioTile(
+                                            title: 'RR Number',
+                                            value: '3',
+                                            groupValue: paymentStatusProvider
+                                                .selectedOption,
+                                            onChanged: (value) {
+                                              paymentStatusProvider
+                                                  .updateSelectedOption(value!);
+                                            },
+                                          ):const SizedBox.shrink(),
                                           const SizedBox(height: 15),
                                           CustomText(
                                             text:

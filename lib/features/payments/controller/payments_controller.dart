@@ -10,9 +10,7 @@ import '../../../core/utils/config/styles/colors.dart';
 import '../../../core/utils/shared/component/widgets/custom_alert_box.dart';
 import '../../../core/utils/shared/component/widgets/custom_toast.dart';
 import '../../../core/utils/shared/constant/assets_path.dart';
-import '../model/pay_status_chk_model.dart';
 import '../repository/payments_repo.dart';
-import '../model/pay_status_chk_model.dart';
 
 class PaymentsProvider extends ChangeNotifier {
   PaymentsProvider() {
@@ -190,17 +188,12 @@ class PaymentsProvider extends ChangeNotifier {
 
 //payment status check api
   final _api = PaymentsRepository();
-  var payStatusChkModel = PayStatusChkModel();
   Future<void> chkAuthPayStatus({required BuildContext context}) async {
     try {
       final response = await _api.chkAuthPayStatus();
 
       if (response != null && response['status'] == 200) {
-        payStatusChkModel = PayStatusChkModel.fromJson(response['data']);
-        final splitResponse = payStatusChkModel.response!.first.rES!.split('~');
-
-        // final splitResponse = response['data']['response'][0]['RES'].split('~');
-
+        final splitResponse = response['data']['response'][0]['RES'].split('~');
         final shouldNavigate = splitResponse[0].toString() == "0" ||
             splitResponse[1].toString() == "1";
 
@@ -220,6 +213,49 @@ class PaymentsProvider extends ChangeNotifier {
         } else {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             context.goNamed(RoutesName.paymentStatus);
+          });
+        }
+      } else {
+        CustomToast.showCustomToast(message: "Unexpected error occurred");
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error: $e");
+      }
+      CustomToast.showCustomToast(
+          message: "An error occurred while checking payment status");
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<void> chkImpsStatus({required BuildContext context}) async {
+    try {
+      final response = await _api.chkImpsStatus();
+
+      if (response != null && response['status'] == 200) {
+        final splitResponse = response['data']['response'][0]['RES'].split('~');
+
+        final shouldNavigate = splitResponse[0].toString() == "0" ||
+            splitResponse[1].toString() == "1";
+
+        notifyListeners();
+
+        if (shouldNavigate) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            CustomAlertDialog.showCustomAlertDialog(
+              context: context,
+              title: 'Unauthorized',
+              message: splitResponse[1].toString(),
+              confirmText: 'Confirm',
+              cancelText: 'Cancel',
+              isActionTrue: false,
+            );
+          });
+        } else {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context.goNamed(RoutesName.impsInquiry);
           });
         }
       } else {

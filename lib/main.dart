@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:payments_application/features/others/controller/others_controller.dart';
 import 'package:payments_application/features/otp_based/controller/opt_based_controller.dart';
 import 'package:payments_application/features/payments/controller/payments_controller.dart';
+import 'package:payments_application/features/payments/view/report/imps_inquiry/controller/imps_inquiry_controller.dart';
 import 'package:payments_application/features/sbi/controller/sbi_controller.dart';
 import 'package:provider/provider.dart';
 import 'app.dart';
@@ -28,7 +29,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => BankRecoProvider()),
         ChangeNotifierProvider(create: (_) => PaymentReportProvider()),
         ChangeNotifierProvider(create: (_) => PaymentStatusProvider()),
-
+        ChangeNotifierProvider(create: (_) => ImpsInquiryProvider()),
       ],
       child: const MyApp(),
     ),

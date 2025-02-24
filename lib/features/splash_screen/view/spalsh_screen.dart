@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<HomeProvider>(context, listen: false)
-          .sessionApi(context: context);
+          .sessionApi(context: context, curSession: "${widget.session}");
     });
   }
 

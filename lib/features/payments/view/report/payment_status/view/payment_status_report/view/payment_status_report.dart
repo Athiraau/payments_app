@@ -227,54 +227,87 @@ class PaymentStatusReport extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 10),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          CustomButton(
-                                            customWidget: SvgPicture.asset(
-                                              AssetsPath.excel,
-                                              width: 18,
-                                              height: 18,
-                                              color: Colors.white,
-                                            ),
-                                            text: 'Export to Excel',
-                                            txtColor: Colors.white,
-                                            btnColor: AppColor.excelBtn,
-                                            borderRadious: 8,
-                                            width: 143,
-                                            height: 38,
-                                            onPressed: () {},
-                                          ),
-                                          SizedBox(
-                                            width: 10,
-                                          ),
-                                          CustomButton(
-                                            customWidget: SvgPicture.asset(
-                                              AssetsPath.pdf,
-                                              width: 18,
-                                              height: 18,
-                                              color: Colors.white,
-                                            ),
-                                            text: 'Export to Pdf',
-                                            txtColor: AppColor.primaryColor,
-                                            btnColor: AppColor.pdfBtn,
-                                            borderRadious: 8,
-                                            width: 143,
-                                            height: 40,
-                                            onPressed: () {},
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                   paymentStatusProvider.isLoading
-                                            ? _buildShimmerList()
-                                            : Padding(
+                                    if (paymentStatusProvider
+                                            .payStatusTableModel.response !=
+                                        null)
+                                      paymentStatusProvider.payStatusTableModel
+                                              .response!.isNotEmpty
+                                          ? Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 10),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  CustomButton(
+                                                    progress: paymentStatusProvider
+                                                            .loadExcelReport
+                                                        ? const SizedBox(
+                                                            width: 10,
+                                                            height: 10,
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                              color:
+                                                                  Colors.white,
+                                                            ))
+                                                        : null,
+                                                    customWidget:
+                                                        SvgPicture.asset(
+                                                      AssetsPath.excel,
+                                                      width: 18,
+                                                      height: 18,
+                                                      color: Colors.white,
+                                                    ),
+                                                    text: 'Export to Excel',
+                                                    txtColor: Colors.white,
+                                                    btnColor: AppColor.excelBtn,
+                                                    borderRadious: 8,
+                                                    width: 143,
+                                                    height: 38,
+                                                    onPressed: () {
+                                                      paymentStatusProvider
+                                                          .exportToExcel(
+                                                              context);
+                                                    },
+                                                  ),
+                                                  SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  CustomButton(
+                                                    customWidget:
+                                                        SvgPicture.asset(
+                                                      AssetsPath.pdf,
+                                                      width: 18,
+                                                      height: 18,
+                                                      color: Colors.white,
+                                                    ),
+                                                    text: 'Export to Pdf',
+                                                    txtColor:
+                                                        AppColor.primaryColor,
+                                                    btnColor: AppColor.pdfBtn,
+                                                    borderRadious: 8,
+                                                    width: 143,
+                                                    height: 40,
+                                                    onPressed: () {
+                                                      paymentStatusProvider
+                                                          .exportToPdf(context);
+                                                    },
+                                                  )
+                                                ],
+                                              ),
+                                            )
+                                          : const SizedBox.shrink(),
+                                    paymentStatusProvider.isLoading
+                                        ? _buildShimmerList()
+                                        : paymentStatusProvider
+                                                .payStatusTableModel
+                                                .response!
+                                                .isNotEmpty
+                                            ? Padding(
                                                 padding:
                                                     const EdgeInsets.symmetric(
                                                         horizontal: 15.0),
@@ -393,6 +426,22 @@ class PaymentStatusReport extends StatelessWidget {
                                                   ),
                                                 ),
                                               )
+                                            : Center(
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 20),
+                                                  child: CustomText(
+                                                    text: isTablet
+                                                        ? "No data found"
+                                                        : "No data found",
+                                                    fontSize:
+                                                        isTablet ? 12 : 10,
+                                                    fontFamily:
+                                                        'poppinsRegular',
+                                                    color: AppColor.hdTxtColor,
+                                                  ),
+                                                ),
+                                              ),
                                   ]))
                             ],
                           );
@@ -418,7 +467,8 @@ class TableDataSource extends DataTableSource {
     if (index >= data.length) {
       return DataRow(cells: [
         DataCell(Text('No data available',
-            style: TextStyle(fontStyle: FontStyle.italic,color: AppColor.errorTxt))),
+            style: TextStyle(
+                fontStyle: FontStyle.italic, color: AppColor.errorTxt))),
       ]);
     }
 

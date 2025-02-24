@@ -67,4 +67,5 @@ class RoutesName {
   static const String crn_excel_report = 'crn_excel_report';
   static const String live_employee_report = 'live_employee_report';
   static const String paymentStatusReport = 'payment_status_report';
+  static const String impsInquiryReport = 'imps_inquiry_report';
 }
