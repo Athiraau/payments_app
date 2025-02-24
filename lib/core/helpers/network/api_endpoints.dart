@@ -9,6 +9,6 @@ class ApiEndPoints {
   static const String paymentRadio = "PAYMENTSTATUS_RADIO_ACCESS/";
   static const String impsAccess = "IMPS_ACCESS/";
   static const String paymentReport = "PAYMENT_REPORT/";
-  static const String getPaymentReport = "GETPAYMENTREPORT1*";
-
+  static const String getPaymentReport1 = "GETPAYMENTREPORT1*";
+  static const String getPaymentReport2 = "GETPAYMENTREPORT2*";
 }

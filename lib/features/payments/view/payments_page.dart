@@ -265,7 +265,6 @@ class PaymentTabItem extends StatelessWidget {
             },
             child: BuildCardItem(
               item: item,
-
             ),
           ),
         );
@@ -315,15 +314,14 @@ class PaymentTabItem extends StatelessWidget {
               final paymentStatusProvider =
                   Provider.of<PaymentsProvider>(context, listen: false);
               paymentStatusProvider.chkImpsStatus(context: context);
-
             } else {
               context.go(item['route'] as String);
             }
           },
-          child:
-          BuildCardItem(
+          child: BuildGridItem(
+
             item: item,
-          )
+          ),
         );
       },
     );

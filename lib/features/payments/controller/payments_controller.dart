@@ -19,7 +19,6 @@ class PaymentsProvider extends ChangeNotifier {
 
   // Loading state
   bool _isLoading = false;
-
   bool get isLoading => _isLoading;
 
   int _curIndex = 0;
@@ -137,7 +136,6 @@ class PaymentsProvider extends ChangeNotifier {
   List<Map<String, dynamic>> _filteredItems = [];
   List<Map<String, dynamic>> get filteredItems => _filteredItems;
 
-
   Future<void> loadingPayments() async {
     _isLoading = true;
     notifyListeners();
@@ -234,8 +232,6 @@ class PaymentsProvider extends ChangeNotifier {
   }
 
   Future<void> chkImpsStatus({required BuildContext context}) async {
-
-
     try {
       final response = await _api.chkImpsStatus();
 

@@ -28,9 +28,15 @@ class PaymentStatusRepository {
     return response;
   }
 
-  Future<dynamic> fetchDocIdData({required String docId}) async {
+  Future<dynamic> fetchDocIdData1({required String docId}) async {
     dynamic response = await _apiService.getApi(
-        "${ApiEndPoints.baseURL}${ApiEndPoints.paymentReport}${ApiEndPoints.getPaymentReport}$docId/1");
+        "${ApiEndPoints.baseURL}${ApiEndPoints.paymentReport}${ApiEndPoints.getPaymentReport1}$docId/1");
+    return response;
+  }
+
+  Future<dynamic> fetchDocIdData2({required String docId}) async {
+    dynamic response = await _apiService.getApi(
+        "${ApiEndPoints.baseURL}${ApiEndPoints.paymentReport}${ApiEndPoints.getPaymentReport2}$docId/1");
     return response;
   }
 }

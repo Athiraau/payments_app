@@ -35,6 +35,8 @@ class ImpsInquiryProvider extends ChangeNotifier {
   String get branchName => _branchName;
 
 
+
+
   set branchName(String value) {
     _branchName = value;
   }

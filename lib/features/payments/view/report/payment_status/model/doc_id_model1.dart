@@ -1,27 +1,27 @@
-class DocIDDataModel {
-  List<Response>? response;
+class DocIdModel1 {
+  List<ResponseDocId1>? docId1response;
 
-  DocIDDataModel({this.response});
+  DocIdModel1({this.docId1response});
 
-  DocIDDataModel.fromJson(Map<String, dynamic> json) {
+  DocIdModel1.fromJson(Map<String, dynamic> json) {
     if (json['response'] != null) {
-      response = <Response>[];
+      docId1response = <ResponseDocId1>[];
       json['response'].forEach((v) {
-        response!.add(new Response.fromJson(v));
+        docId1response!.add(new ResponseDocId1.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.response != null) {
-      data['response'] = this.response!.map((v) => v.toJson()).toList();
+    if (this.docId1response != null) {
+      data['response'] = this.docId1response!.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
-class Response {
+class ResponseDocId1 {
   String? mODDESCR;
   String? bRANCHNAME;
   int? bRANCHID;
@@ -29,12 +29,12 @@ class Response {
   String? cUSTID;
   int? aMOUNT;
   String? vALUEDATE;
-  Null? sENDDATE;
-  Null? sENDTRANSID;
-  Null? cORPORATEID;
-  Null? bATCHNO;
+  String? sENDDATE;
+  String? sENDTRANSID;
+  String? cORPORATEID;
+  String? bATCHNO;
 
-  Response(
+  ResponseDocId1(
       {this.mODDESCR,
         this.bRANCHNAME,
         this.bRANCHID,
@@ -47,7 +47,7 @@ class Response {
         this.cORPORATEID,
         this.bATCHNO});
 
-  Response.fromJson(Map<String, dynamic> json) {
+  ResponseDocId1.fromJson(Map<String, dynamic> json) {
     mODDESCR = json['MOD_DESCR'];
     bRANCHNAME = json['BRANCH_NAME'];
     bRANCHID = json['BRANCH_ID'];
