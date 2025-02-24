@@ -75,9 +75,15 @@ class BuildCardItem extends StatelessWidget {
                   ),
                 ],
               )
-            : const CircularProgressIndicator(
-                color: AppColor.drawerColor,
-              ),
+            :   Container(
+      color:  Color(0xFFE2EEAE)
+      , // Semi-transparent overlay
+      child: const Center(
+        child: CircularProgressIndicator(
+          color: Colors.white,
+        ),
+      ),
+    ),
       ),
     );
   }
@@ -86,10 +92,11 @@ class BuildCardItem extends StatelessWidget {
 // Grid Item Widget Class
 class BuildGridItem extends StatelessWidget {
   final Map<String, dynamic> item;
-
+  final bool isLoading;
   const BuildGridItem({
     Key? key,
     required this.item,
+    this.isLoading = false, // Default to false
   }) : super(key: key);
 
   @override
@@ -100,25 +107,26 @@ class BuildGridItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(height: 8),
-          SvgPicture.asset(
-            item['logo'] as String,
-            width: 40,
-            height: 40,
-            color: item['cardTitle'] as Color,
-          ),
-          const SizedBox(height: 8),
-          CustomText(
-            text: item['title'] as String,
-            color: item['cardTitle'] as Color,
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-            fontFamily: 'poppinsRegular', // Set fontFamily
-          ),
-        ],
-      ),
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 8),
+                SvgPicture.asset(
+                  item['logo'] as String,
+                  width: 40,
+                  height: 40,
+                  color: item['cardTitle'] as Color,
+                ),
+                const SizedBox(height: 8),
+                CustomText(
+                  text: item['title'] as String,
+                  color: item['cardTitle'] as Color,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  fontFamily: 'poppinsRegular', // Set fontFamily
+                ),
+              ],
+            )
     );
+
   }
 }

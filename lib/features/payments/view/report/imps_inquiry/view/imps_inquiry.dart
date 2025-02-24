@@ -196,10 +196,32 @@ class ImpsInquiry extends StatelessWidget {
                                               hintTxtStyle: const TextStyle(
                                                   color: AppColor
                                                       .txtFieldItemColor),
-                                              onChanged: (value) {},
+                                              onChanged: (value) {
+                                                impsInquiryProvider
+                                                    .validateUserId(
+                                                    id: _textController
+                                                        .text,
+                                                    type:
+                                                    impsInquiryProvider.curDocTitle);
+                                              },
                                               obscureText: false,
                                             ),
                                           ),
+                                          impsInquiryProvider
+                                              .validateId.isNotEmpty
+                                              ? Padding(
+                                            padding: const EdgeInsets
+                                                .symmetric(vertical: 5),
+                                            child: CustomText(
+                                              text: impsInquiryProvider
+                                                  .validateId,
+                                              fontSize: 10,
+                                              fontFamily:
+                                              'poppinsRegular',
+                                              color: Colors.red,
+                                            ),
+                                          )
+                                              : const SizedBox.shrink(),
                                           SizedBox(
                                             width: size.width,
                                             child: Padding(
@@ -213,31 +235,48 @@ class ImpsInquiry extends StatelessWidget {
                                                     CrossAxisAlignment.center,
                                                 children: [
                                                   CustomButton(
-                                                    text: 'Generate',
-                                                    txtColor: Colors.white,
-                                                    btnColor:
-                                                        AppColor.drawerColor,
-                                                    borderRadious: 8,
-                                                    progress: impsInquiryProvider
-                                                            .isLoading
-                                                        ? const SizedBox(
-                                                            width: 10,
-                                                            height: 10,
-                                                            child:
-                                                                CircularProgressIndicator(
-                                                              color:
-                                                                  Colors.white,
-                                                            ))
-                                                        : null,
-                                                    width: isTablet
-                                                        ? size.width * 0.20
-                                                        : size.width * 0.30,
-                                                    height: 35,
-                                                    onPressed: () {
-                                                      context.goNamed(RoutesName
-                                                          .impsInquiryReport);
-                                                    },
-                                                  ),
+                                                      text: 'Generate',
+                                                      txtColor: Colors.white,
+                                                      btnColor:
+                                                          AppColor.drawerColor,
+                                                      borderRadious: 8,
+                                                      progress: impsInquiryProvider
+                                                              .isLoading
+                                                          ? const SizedBox(
+                                                              width: 10,
+                                                              height: 10,
+                                                              child:
+                                                                  CircularProgressIndicator(
+                                                                color: Colors
+                                                                    .white,
+                                                              ))
+                                                          : null,
+                                                      width: isTablet
+                                                          ? size.width * 0.20
+                                                          : size.width * 0.30,
+                                                      height: 35,
+                                                      onPressed: () {
+                                                        if (_textController
+                                                            .text.isEmpty) {
+                                                          impsInquiryProvider
+                                                              .validateUserId(
+                                                                  id: _textController
+                                                                      .text,
+                                                                  type: impsInquiryProvider
+                                                                      .selectedOption);
+                                                        } else {
+
+                                                          impsInquiryProvider
+                                                              .fetchimpxData(
+                                                                  context:
+                                                                      context,
+                                                                  id: _textController
+                                                                      .text);
+
+                                                        }
+                                                      }
+
+                                                      ),
                                                   const SizedBox(
                                                     width: 10,
                                                   ),

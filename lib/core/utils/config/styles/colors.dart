@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppColor {
   static const primaryColor = Colors.white;
+  static const highLiteTxt = Color(0xFF3E8AFF);
   static const cardTitleColor = Color(0xFF111827);
   static const cardTitleSubColor = Color(0xFF374151);
   static const drawerColor = Color(0xFF051645);

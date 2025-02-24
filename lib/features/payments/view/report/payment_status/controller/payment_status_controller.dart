@@ -4,7 +4,6 @@ import 'package:excel/excel.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:payments_application/core/utils/config/styles/colors.dart';
 import 'package:payments_application/core/utils/shared/constant/assets_path.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -241,21 +240,21 @@ class PaymentStatusProvider extends ChangeNotifier {
       Sheet sheetObject = excel['Sheet1'];
 
       List<String> headers = [
-        'MOD DESCR',
-        'Branch name',
-        'Branch id',
-        'Doc Id',
-        'Customer Id',
+        'Module',
+        'Branch',
+        'BranchId',
+        'DocId',
+        'CustomerId',
         'Amount',
-        'Value date',
-        'Send date',
-        'Send transaction Id',
-        'Co-operate Id',
-        'Batch Number',
-        'Customer name',
-        'Beneficiary account',
-        'IFSC Code',
-        'SEQ Number'
+        'TraDate',
+        'SendDate',
+        'SendTransId',
+        'CorporateId',
+        'BatchNumber',
+        'BeneName',
+        'BeneAccNo',
+        'BeneIFSCCode',
+        'SeqNumber'
       ];
 
       // Add headers
@@ -407,21 +406,21 @@ class PaymentStatusProvider extends ChangeNotifier {
         await rootBundle.load("assets/fonts/Poppins-Regular.ttf");
     final poppinsRegular = pw.Font.ttf(fontDataRegular);
     List<String> headers = [
-      'MOD DESCR',
-      'Branch name',
-      'Branch id',
-      'Doc Id',
-      'Customer Id',
+      'Module',
+      'Branch',
+      'BranchId',
+      'DocId',
+      'CustomerId',
       'Amount',
-      'Value date',
-      'Send date',
-      'Send transaction Id',
-      'Co-operate Id',
-      'Batch Number',
-      'Customer name',
-      'Beneficiary account',
-      'IFSC Code',
-      'SEQ Number'
+      'TraDate',
+      'SendDate',
+      'SendTransId',
+      'CorporateId',
+      'BatchNumber',
+      'BeneName',
+      'BeneAccNo',
+      'BeneIFSCCode',
+      'SeqNumber'
     ];
 
     List<List<String>> tableData = payStatusTableModel.response!.map((item) {
@@ -474,7 +473,7 @@ class PaymentStatusProvider extends ChangeNotifier {
                 fontSize: 6,
                 color: const PdfColor.fromInt(0xFF051645),
                 fontWeight: pw.FontWeight.bold,
-                font: poppinsSemiBold),
+                font: poppinsRegular),
             cellStyle: pw.TextStyle(
               fontSize: 6,
               font: poppinsRegular,
@@ -534,6 +533,39 @@ class PaymentStatusProvider extends ChangeNotifier {
           );
         });
       }
+    }
+  }
+
+  //fetch docId data
+  Future<void> fetchDocIdData(
+      {required BuildContext context, required String id}) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+      final response =
+      await _api.fetchPayStatusData(ckBoxId: _selectedOption, id: id);
+
+      if (response != null && response['status'] == 200) {
+        if (response['data']['response'] != null) {
+          payStatusTableModel = PayStatusTableModel.fromJson(response['data']);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context.goNamed(RoutesName.paymentStatusReport);
+          });
+          notifyListeners();
+        } else {
+          CustomToast.showCustomErrorToast(message: "response is empty");
+        }
+      } else {
+        CustomToast.showCustomErrorToast(message: "Unexpected error occurred");
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error $e");
+      }
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
   }
 }

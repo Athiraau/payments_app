@@ -20,6 +20,14 @@ class PaymentStatus extends StatefulWidget {
 }
 
 class _PaymentStatusState extends State<PaymentStatus> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<PaymentStatusProvider>(context, listen: false)
+          .chkRRNumStatus();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -234,13 +242,6 @@ class _PaymentStatusState extends State<PaymentStatus> {
                                               hintTxt:
                                                   'Enter ${paymentStatusProvider.curDocTitle}',
                                               controller: _textController,
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Please enter a valid ${paymentStatusProvider.selectedOption}';
-                                                }
-                                                return null;
-                                              },
                                               keyboardType: TextInputType.text,
                                               labelTxtStyle: const TextStyle(
                                                   color: AppColor
@@ -254,7 +255,7 @@ class _PaymentStatusState extends State<PaymentStatus> {
                                                         id: _textController
                                                             .text,
                                                         type:
-                                                            '${paymentStatusProvider.selectedOption}');
+                                                            paymentStatusProvider.curDocTitle);
                                               },
                                               obscureText: false,
                                             ),

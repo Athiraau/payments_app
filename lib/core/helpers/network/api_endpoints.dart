@@ -6,6 +6,9 @@ class ApiEndPoints {
   static const String formAccess = "FORM_ACCESS/";
   static const String paymentAccess = "PAYMENTSTATUS_ACCESS/";
   static const String paymentData = "PAYMENTSTATUS_DATA/";
-  static const String paymentRadio= "PAYMENTSTATUS_RADIO_ACCESS/";
+  static const String paymentRadio = "PAYMENTSTATUS_RADIO_ACCESS/";
   static const String impsAccess = "IMPS_ACCESS/";
+  static const String paymentReport = "PAYMENT_REPORT/";
+  static const String getPaymentReport = "GETPAYMENTREPORT1*";
+
 }
