@@ -73,7 +73,7 @@ class NetworkApiServices extends BaseApiServices {
       });
       request.files.addAll(files);
 
-      var response = await request.send().timeout(const Duration(seconds: 20));
+      var response = await request.send();
 
       var responseData = await response.stream.toBytes();
       var responseString = String.fromCharCodes(responseData);

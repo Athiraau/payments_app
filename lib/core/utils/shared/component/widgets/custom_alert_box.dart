@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter/services.dart';
 import '../../../config/styles/colors.dart';
-import 'custom_button.dart'; // Import your CustomButton
-import 'custom_text.dart'; // Import your CustomText
+import 'custom_text.dart';
 
 class CustomAlertDialog {
-  static void showCustomAlertDialog(
-      {required BuildContext context,
-      required String title,
-      required String message,
-      String? cancelText,
-      required final dynamic Function()? onCancelPressed}) {
+  static void showCustomAlertDialog({
+    required BuildContext context,
+    required String title,
+    required String message,
+    String? cancelText,
+    final VoidCallback? onCancelPressed,
+  }) {
+    final FocusNode focusNode = FocusNode();
+
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -31,35 +34,48 @@ class CustomAlertDialog {
               maxHeight: 100,
             ),
             child: SingleChildScrollView(
-              child: CustomText(
-                text: message,
-                fontFamily: 'poppinsRegular',
-                maxLines: 2,
-                fontSize: 12,
-                overflow: TextOverflow.ellipsis,
-                color: AppColor.cardTitleSubColor,
+              child: Center(
+                child: CustomText(
+                  text: message,
+                  fontFamily: 'poppinsRegular',
+                  maxLines: 2,
+                  fontSize: 12,
+                  overflow: TextOverflow.ellipsis,
+                  color: AppColor.cardTitleSubColor,
+                ),
               ),
             ),
           ),
-          actions: <Widget>[
+          actions: [
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColor.drawerImgTileColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                KeyboardListener(
+                  focusNode: focusNode,
+                  autofocus: true,
+                  onKeyEvent: (event) {
+                    if (event is KeyDownEvent &&
+                        event.logicalKey == LogicalKeyboardKey.enter) {
+                      if (onCancelPressed != null) {
+                        onCancelPressed();
+                      }
+                    }
+                  },
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.drawerImgTileColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  ),
-                  onPressed: onCancelPressed,
-                  child: Padding(
-                    padding: const EdgeInsets.all(5),
-                    child: Text(
-                      cancelText ?? 'Ok',
-                      style: const TextStyle(
-                        color: Colors.white,
+                    onPressed: onCancelPressed,
+                    child: Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Text(
+                        cancelText ?? 'Ok',
+                        style: const TextStyle(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -69,6 +85,8 @@ class CustomAlertDialog {
           ],
         );
       },
-    );
+    ).then((_) {
+      focusNode.dispose();
+    });
   }
 }

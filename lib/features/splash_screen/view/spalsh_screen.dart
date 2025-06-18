@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:payments_application/core/utils/config/styles/colors.dart';
-import 'package:payments_application/core/utils/shared/constant/assets_path.dart';
+
 import 'package:provider/provider.dart';
 import '../../../core/helpers/encryption/app_encryption_helper.dart';
 import '../../../core/helpers/routes/app_route_name.dart';
+import '../../../core/utils/config/styles/colors.dart';
+import '../../../core/utils/shared/constant/assets_path.dart';
 import '../../home/controller/home_controller.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -32,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Container(
-      decoration: const BoxDecoration(color: AppColor.primaryColor),
+      decoration: BoxDecoration(color: AppColor.primaryColor),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,

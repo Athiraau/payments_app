@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:shimmer/shimmer.dart';
-
+import '../../../core/helpers/session/controller/session_controller.dart';
 import '../../../core/utils/config/styles/colors.dart';
 import '../../../core/utils/shared/component/widgets/custom_textfield.dart';
 import '../../../core/utils/shared/component/widgets/item_card_widget.dart';
 import '../../../core/utils/shared/constant/assets_path.dart';
-import '../../bank_reconcilation/view/bank_reconcilation.dart';
 import '../../bread_crumbs/view/bread_crumbs.dart';
 import '../../drawer/controller/drawer_controller.dart';
 import '../controller/home_controller.dart';
@@ -21,125 +18,128 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  TextEditingController searchController = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    return Container(
-      width: size.width,
-      height: size.height,
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(AssetsPath.appBackground),
-          fit: BoxFit.cover,
+    return Consumer<HomeProvider>(builder: (context, homeProvider, child) {
+      return Container(
+        width: size.width,
+        height: size.height,
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(AssetsPath.appBackground),
+            fit: BoxFit.cover,
+          ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            const BreadCrumbs(title: 'Home Page',),
-            const SizedBox(height: 10),
-            Expanded(
-              child: Container(
-                width: size.width,
-                decoration: BoxDecoration(
-                  color: AppColor.primaryColor,
-                  border: Border.all(width: 1, color: AppColor.dividerColor),
-                  borderRadius: BorderRadius.circular(8.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: size.width * 0.50,
-                            height: 40,
-                            child: CustomTextField(
-                              labelTxt: 'Search',
-                              hintTxt: 'Enter text',
-                              controller: searchController,
-                              keyboardType: TextInputType.text,
-                              labelTxtStyle:
-                                  const TextStyle(color: AppColor.txtFieldItemColor),
-                              hintTxtStyle:
-                                  const TextStyle(color: AppColor.txtFieldItemColor),
-                              onChanged: (value) {
-                                context.read<HomeProvider>().searchItems(value);
-                              },
-                              validator: (value) => null,
-                              obscureText: false,
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.search),
-                                onPressed: () {},
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              const BreadCrumbs(
+                title: 'Home Page',
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: Container(
+                  width: size.width,
+                  decoration: BoxDecoration(
+                    color: AppColor.primaryColor,
+                    border: Border.all(width: 1, color: AppColor.dividerColor),
+                    borderRadius: BorderRadius.circular(8.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: size.width * 0.50,
+                              height: 40,
+                              child: CustomTextField(
+                                labelTxt: 'Search',
+                                hintTxt: 'Enter text',
+                                controller: homeProvider.searchController,
+                                keyboardType: TextInputType.text,
+                                labelTxtStyle: const TextStyle(
+                                    color: AppColor.txtFieldItemColor),
+                                hintTxtStyle: const TextStyle(
+                                    color: AppColor.txtFieldItemColor),
+                                onChanged: (value) {
+                                  context.read<HomeProvider>().searchItems(value);
+                                },
+                                validator: (value) => null,
+                                obscureText: false,
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.search),
+                                  onPressed: () {},
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      const Expanded(child: HomePageItem()),
-                    ],
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Expanded(child: HomePageItem(provider: homeProvider,)),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    },);
   }
 }
 
 class HomePageItem extends StatelessWidget {
-  const HomePageItem({super.key});
+  final HomeProvider provider;
+  const HomePageItem({super.key, required this.provider});
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    final homeProvider = Provider.of<HomeProvider>(context);
     final sliderController = Provider.of<SliderProvider>(context);
     final isMobile = size.width < 600;
     final isTablet = size.width >= 600 && size.width < 1024;
-    final crossAxisCount = isMobile ? 1 : (isTablet ? 2 : 3);
-
-    if (homeProvider.isLoading) {
+    final crossAxisCount = isMobile ? 1 : (isTablet ? 3 : 4);
+    if (provider.isLoading) {
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: isMobile
             ? ListView.builder(
-                itemCount: 6,
-                itemBuilder: (context, index) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10.0),
-                  child: ShimmerWidget(height: 100, width: double.infinity),
-                ),
-              )
+          itemCount: 6,
+          itemBuilder: (context, index) => const Padding(
+            padding: EdgeInsets.only(bottom: 10.0),
+            child: ShimmerWidget(height: 100, width: double.infinity),
+          ),
+        )
             : GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 2.5,
-                ),
-                itemCount: 6,
-                itemBuilder: (context, index) =>
-                    ShimmerWidget(height: 100, width: double.infinity),
-              ),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            childAspectRatio: 2.2,
+          ),
+          itemCount: 6,
+          itemBuilder: (context, index) =>
+          const ShimmerWidget(height: 100, width: double.infinity),
+        ),
       );
     }
 
-    if (homeProvider.filteredItems.isEmpty) {
+    if (provider.filteredItems.isEmpty) {
       return const Center(
         child: Text(
           "No items found",
@@ -154,44 +154,91 @@ class HomePageItem extends StatelessWidget {
 
     return isMobile
         ? ListView.builder(
-            itemCount: homeProvider.filteredItems.length,
-            itemBuilder: (context, index) {
-              final item = homeProvider.filteredItems[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 10.0),
-                child: GestureDetector(
-                  onTap: () {
-                    sliderController.setSelectedItem(item['title']!);
-                    sliderController.chkIsSelected(title: item['title'].toString());
-                    context.go(item['route'] as String);
-                  },
-                  child: SizedBox(
-                    height: 100,
-                    child: BuildCardItem(item: item,),
-                  ),
-                ),
-              );
-            },
-          )
+      itemCount: provider.filteredItems.length,
+      itemBuilder: (context, index) {
+        final item = provider.filteredItems[index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10.0),
+          child: SizedBox(
+              height: 70,
+              child: Consumer<HomeProvider>(
+                builder: (context, homeProvider, child) {
+                  homeProvider.curIndex = index;
+                  return Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.0),
+                      border: Border.all(
+                        color: homeProvider.curIndex ==
+                            homeProvider.selectedIndex
+                            ? AppColor.cardTitleColor
+                            : AppColor.dividerColor,
+                        width: 1,
+                      ),
+                    ),
+                    child: BuildCardItem(
+                      curIndex: index,
+                      selectedIndex: homeProvider.loadingIndex,
+                      item: item,
+                      onTap: () {
+                        sliderController.selectedItem = item['title']!;
+                        sliderController.chkIsSelected(
+                            title: item['title'].toString());
+                        context.go(item['route'] as String);
+                      },
+                    ),
+                  );
+                },
+              )),
+        );
+      },
+    )
         : GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              childAspectRatio: 2.5,
-            ),
-            itemCount: homeProvider.filteredItems.length,
-            itemBuilder: (context, index) {
-              final item = homeProvider.filteredItems[index];
-              return GestureDetector(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        childAspectRatio: 2.2,
+      ),
+      itemCount: provider.filteredItems.length,
+      itemBuilder: (context, index) {
+        final item = provider.filteredItems[index];
+        provider.curIndex = index;
+        return MouseRegion(
+          opaque: false,
+          cursor: MouseCursor.defer,
+          onEnter: (_) => provider.onEnter(index),
+          onExit: (_) => provider.onExit(),
+          onHover: (_) {
+            provider.selectedIndex = index;
+          },
+          child: Transform.scale(
+            scale: provider.selectedIndex == index ? 1.0 : 0.96,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8.0),
+                border: Border.all(
+                  color: provider.curIndex ==
+                      provider.selectedIndex
+                      ? AppColor.cardTitleColor
+                      : AppColor.dividerColor,
+                  width: 1,
+                ),
+              ),
+              child: BuildGridItem(
+                item: item,
                 onTap: () {
-                  sliderController.setSelectedItem(item['title']!);
-                  sliderController.chkIsSelected(title: item['title'].toString());
+                  sliderController.selectedItem = item['title']!;
+                  sliderController.chkIsSelected(
+                      title: item['title'].toString());
                   context.go(item['route'] as String);
                 },
-                child: BuildGridItem(item: item,),
-              );
-            },
-          );
+                curIndex: index,
+                selectedIndex: provider.loadingIndex,
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

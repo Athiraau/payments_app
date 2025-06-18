@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:payments_application/core/utils/config/styles/colors.dart';
-import 'package:payments_application/core/utils/shared/constant/assets_path.dart';
-import 'package:payments_application/features/drawer/controller/drawer_controller.dart';
+import '../../../core/utils/config/styles/colors.dart';
 import '../../../core/utils/shared/component/widgets/custom_text.dart';
+import '../../../core/utils/shared/constant/assets_path.dart';
+import '../controller/drawer_controller.dart';
 
 class DrawerWidget extends StatelessWidget {
   const DrawerWidget({super.key});
@@ -45,13 +45,13 @@ class DrawerWidget extends StatelessWidget {
                 sliderController.chkIsSelected(title: item['title'].toString());
 
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 12.0),
+                  padding: const EdgeInsets.only(bottom: 8.0),
                   child: buildDrawerOption(
                     icon: item['logo'].toString(),
                     text: item['title'].toString(),
                     isSelected: sliderController.isSelected,
                     onTap: () {
-                      sliderController.setSelectedItem(item['title']!);
+                      sliderController.selectedItem = item['title']!;
                       context.go(item['route']!);
                       if (!isTablet) {
                         Navigator.of(context).pop();
@@ -84,7 +84,7 @@ class DrawerWidget extends StatelessWidget {
               : Colors.black.withOpacity(0.25),
           borderRadius: BorderRadius.circular(6.0),
         ),
-        height: 50,
+        height: 45,
         child: isExpanded
             ? Row(
                 children: [

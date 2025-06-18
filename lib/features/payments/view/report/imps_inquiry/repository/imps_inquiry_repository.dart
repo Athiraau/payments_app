@@ -1,8 +1,8 @@
-import 'package:payments_application/core/helpers/network/api_endpoints.dart';
 
 import '../../../../../../core/helpers/cache_helper/app_cache_helper.dart';
 import '../../../../../../core/helpers/encryption/app_encryption_helper.dart';
 import '../../../../../../core/helpers/encryption/encryption_value.dart';
+import '../../../../../../core/helpers/network/api_endpoints.dart';
 import '../../../../../../core/helpers/network/network_api_services.dart';
 
 class ImpsInquiryRepository {

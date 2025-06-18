@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 
@@ -11,16 +12,14 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:permission_handler/permission_handler.dart';
-import 'dart:html' as html;
+import 'package:universal_html/html.dart' as html;
 
 import '../../../../../../core/helpers/cache_helper/app_cache_helper.dart';
 import '../../../../../../core/helpers/encryption/app_encryption_helper.dart';
 import '../../../../../../core/helpers/encryption/encryption_value.dart';
 import '../../../../../../core/helpers/routes/app_route_name.dart';
-import '../../../../../../core/utils/shared/component/widgets/custom_toast.dart';
 import '../../../../../../core/utils/shared/constant/assets_path.dart';
-import '../model/demo_mode_remove.dart';
-import '../model/imps_table_mode.dart';
+import '../model/imps_inquiry_model.dart';
 import '../repository/imps_inquiry_repository.dart';
 
 class ImpsInquiryProvider extends ChangeNotifier {
@@ -28,18 +27,36 @@ class ImpsInquiryProvider extends ChangeNotifier {
     formatDateTime();
   }
   String _branchName = '';
-
+  TextEditingController searchController = TextEditingController();
+  TextEditingController textController = TextEditingController();
+  TextEditingController searchModule = TextEditingController();
+  TextEditingController searchPaymentType = TextEditingController();
+  TextEditingController searchBranch = TextEditingController();
+  TextEditingController searchPaymentBank = TextEditingController();
+  TextEditingController searchStatus = TextEditingController();
+  TextEditingController fromDateController = TextEditingController();
+  TextEditingController toDateController = TextEditingController();
+  void clearFields() {
+    searchController.clear();
+    textController.clear();
+    searchModule.clear();
+    searchPaymentType.clear();
+    searchBranch.clear();
+    searchPaymentBank.clear();
+    searchStatus.clear();
+    fromDateController.clear();
+    toDateController.clear();
+    notifyListeners();
+  }
   String curDocTitle = 'Corporate ID';
   String _selectedOption = 'Corporate ID';
 
   String get branchName => _branchName;
 
-
-
-
   set branchName(String value) {
     _branchName = value;
   }
+
   bool _isLoading = false;
 
   bool get isLoading => _isLoading;
@@ -47,8 +64,6 @@ class ImpsInquiryProvider extends ChangeNotifier {
   set isLoading(bool value) {
     _isLoading = value;
   }
-
-
 
   String _formattedDate = '';
   String _formattedTime = '';
@@ -64,21 +79,101 @@ class ImpsInquiryProvider extends ChangeNotifier {
   set formattedTime(String value) {
     _formattedTime = value;
   }
-  Map<String, String> dropdownValues = {
-    "Module": "Select Module",
-    "Payment Type": "Select Type",
-    "Payment Bank": "Select Bank",
-    "Branch": "Select Branch",
-    "Status": "Select Status",
-  };
 
-  Map<String, List<String>> dropdownOptions = {
-    "Module": ["Select Module", "Module 1", "Module 2"],
-    "Payment Type": ["Select Type", "Credit", "Debit"],
-    "Payment Bank": ["Select Bank", "Bank A", "Bank B"],
-    "Branch": ["Select Branch", "Branch X", "Branch Y"],
-    "Status": ["Select Status", "Active", "Inactive"],
-  };
+  List<Map<String, dynamic>> modules = [
+    {"id": 1, "name": "Module 1"},
+    {"id": 2, "name": "Module 2"},
+    {"id": 3, "name": "Module 3"},
+    {"id": 4, "name": "Module 4"},
+    {"id": 5, "name": "Module 5"},
+    {"id": 6, "name": "Module 6"},
+  ];
+
+  var selectedModule = '';
+
+  List<Map<String, dynamic>> paymentType = [
+    {"id": 1, "name": "Payment type 1"},
+    {"id": 2, "name": "Payment type 2"},
+    {"id": 3, "name": "Payment type 3"},
+    {"id": 4, "name": "Payment type 4"},
+    {"id": 5, "name": "Payment type 5"},
+    {"id": 6, "name": "Payment type 6"},
+  ];
+  var selectedPaymentType = '';
+
+  List<Map<String, dynamic>> paymentBank = [
+    {"id": 1, "name": "Payment bank 1"},
+    {"id": 2, "name": "Payment bank 2"},
+    {"id": 3, "name": "Payment bank 3"},
+    {"id": 4, "name": "Payment bank 4"},
+    {"id": 5, "name": "Payment bank 5"},
+    {"id": 6, "name": "Payment bank 6"},
+  ];
+  var selectedPaymentBank = '';
+
+  List<Map<String, dynamic>> branch = [
+    {"id": 1, "name": "Branch 1"},
+    {"id": 2, "name": "Branch 2"},
+    {"id": 3, "name": "Branch 3"},
+    {"id": 4, "name": "Branch 4"},
+    {"id": 5, "name": "Branch 5"},
+    {"id": 6, "name": "Branch 6"},
+  ];
+  var selectedBranch = '';
+
+  List<Map<String, dynamic>> status = [
+    {"id": 1, "name": "Status 1"},
+    {"id": 2, "name": "Status 2"},
+    {"id": 3, "name": "Status 3"},
+    {"id": 4, "name": "Status 4"},
+    {"id": 5, "name": "Status 5"},
+    {"id": 6, "name": "Status 6"},
+  ];
+  var selectedStatus = '';
+
+  DateTime? _fromDate;
+  DateTime? get fromDate => _fromDate;
+
+  void setFromDate(DateTime date) {
+    _fromDate = date;
+    notifyListeners();
+  }
+
+  DateTime? _toDate;
+  DateTime? get toDate => _toDate;
+
+  void setToDate(DateTime date) {
+    _toDate = date;
+    notifyListeners();
+  }
+
+  var filteredItems = <ImpsInquiryModel>[];
+  void searchItems(String query) {
+    if (query.isEmpty) {
+      filteredItems = List.from(impsReportList);
+    } else {
+      filteredItems = filteredItems
+          .where((item) =>
+              item.mODDESCR
+                  .toString()
+                  .toLowerCase()
+                  .contains(query.toLowerCase()) ||
+              item.branchName
+                  .toString()
+                  .toLowerCase()
+                  .contains(query.toLowerCase()) ||
+              item.branchId
+                  .toString()
+                  .toLowerCase()
+                  .contains(query.toLowerCase()) ||
+              item.sEQNumber
+                  .toString()
+                  .toLowerCase()
+                  .contains(query.toLowerCase()))
+          .toList();
+    }
+    notifyListeners();
+  }
 
   Future<void> setCurBranchName() async {
     final _appCacheHelper = AppCacheHelper();
@@ -95,7 +190,7 @@ class ImpsInquiryProvider extends ChangeNotifier {
   void formatDateTime() {
     _timer?.cancel();
 
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       var now = DateTime.now();
       final DateFormat dateFormat = DateFormat('MMM d, yyyy');
       final DateFormat timeFormat = DateFormat('hh:mm a');
@@ -106,6 +201,7 @@ class ImpsInquiryProvider extends ChangeNotifier {
       notifyListeners();
     });
   }
+
   int _rowsPerPage = 10;
 
   int get rowsPerPage => _rowsPerPage;
@@ -145,14 +241,15 @@ class ImpsInquiryProvider extends ChangeNotifier {
     _timer?.cancel();
     super.dispose();
   }
-  //dummy data
 
-  List<Map<String, dynamic>> demoDataList = List.generate(100, (index) {
+  //dummy data
+  var impsReportList = <ImpsInquiryModel>[];
+  List<Map<String, dynamic>> items = List.generate(100, (index) {
     return {
       'MOD DESCR': 'Transaction ${index + 1}',
       'Branch name': 'Branch ${index + 1}',
       'Branch id': 'BR00${index + 1}',
-      'Doc Id': 'DOC${1000 + index+1}',
+      'Doc Id': 'DOC${1000 + index + 1}',
       'Customer Id': 'CUST${2000 + index}',
       'Amount': '${(index + 1) * 1000.50}',
       'Value date': '2025-01-${10 + index}',
@@ -167,41 +264,40 @@ class ImpsInquiryProvider extends ChangeNotifier {
     };
   });
 
-
-
   final _api = ImpsInquiryRepository();
-  var impsTableModels = ImpsTableModel(items: []);
+  var impsInquiryModel = ImpsInquiryModel();
 
-  Future<void> fetchimpxData(
+  Future<void> fetchImpsData(
       {required BuildContext context, required String id}) async {
     try {
       isLoading = true;
       notifyListeners();
-      // final response =
-      // await _api.ImpsinquiryData(ckBoxId: _selectedOption, id: id);
-      impsTableModels = ImpsTableModel.fromJsonList(demoDataList);
+
+      final List<dynamic> response = items;
+      impsReportList.addAll(
+          response.map((json) => ImpsInquiryModel.fromJson(json)).toList());
+      filteredItems = impsReportList;
       notifyListeners();
 
-
       WidgetsBinding.instance.addPostFrameCallback((_) {
-                context.goNamed(RoutesName.impsInquiryReport);
-              });
-            notifyListeners();
+        context.goNamed(RoutesName.impsInquiryReport);
+      });
+      notifyListeners();
 
       //   if (response != null && response['status'] == 200) {
-    //     if (response['data']['response'] != null) {
-    //       ImpsTableModels = ImpsTableModel.fromJson(response['data']);
-    //       WidgetsBinding.instance.addPostFrameCallback((_) {
-    //         context.goNamed(RoutesName.impsInquiryReport);
-    //       });
-    //       notifyListeners();
-    //     } else {
-    //       CustomToast.showCustomErrorToast(message: "response is empty");
-    //     }
-    //   } else {
-    //     CustomToast.showCustomErrorToast(message: "Unexpected error occurred");
-    //     notifyListeners();
-    //   }
+      //     if (response['data']['response'] != null) {
+      //       ImpsTableModels = ImpsTableModel.fromJson(response['data']);
+      //       WidgetsBinding.instance.addPostFrameCallback((_) {
+      //         context.goNamed(RoutesName.impsInquiryReport);
+      //       });
+      //       notifyListeners();
+      //     } else {
+      //       CustomToast.showCustomErrorToast(message: "response is empty");
+      //     }
+      //   } else {
+      //     CustomToast.showCustomErrorToast(message: "Unexpected error occurred");
+      //     notifyListeners();
+      //   }
     } catch (e) {
       if (kDebugMode) {
         print("Error $e");
@@ -212,12 +308,6 @@ class ImpsInquiryProvider extends ChangeNotifier {
     }
   }
 
-
-
-
-
-
-
   bool loadExcelReport = false;
 
   Future<void> exportToExcel(BuildContext context) async {
@@ -225,8 +315,7 @@ class ImpsInquiryProvider extends ChangeNotifier {
       loadExcelReport = true;
       notifyListeners();
 
-      if (impsTableModels.items!.isEmpty &&
-          impsTableModels.items != null) {
+      if (impsReportList.isEmpty) {
         // Handle empty data case
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('No data to export')),
@@ -263,54 +352,54 @@ class ImpsInquiryProvider extends ChangeNotifier {
       }
 
       // Add data
-      for (int i = 0; i < impsTableModels.items!.length; i++) {
-        ImpsTableItem item = impsTableModels.items![i];
+      for (int i = 0; i < impsReportList.length; i++) {
+        ImpsInquiryModel item = impsReportList[i];
 
         sheetObject
             .cell(CellIndex.indexByColumnRow(columnIndex: 0, rowIndex: i + 1))
             .value = TextCellValue(item.mODDESCR ?? '');
         sheetObject
             .cell(CellIndex.indexByColumnRow(columnIndex: 1, rowIndex: i + 1))
-            .value = TextCellValue(item.bRANCHNAME ?? '');
+            .value = TextCellValue(item.branchName ?? '');
         sheetObject
             .cell(CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: i + 1))
-            .value = TextCellValue("${item.bRANCHID ?? ''}");
+            .value = TextCellValue(item.branchId ?? '');
         sheetObject
             .cell(CellIndex.indexByColumnRow(columnIndex: 3, rowIndex: i + 1))
-            .value = TextCellValue(item.dOCID ?? '');
+            .value = TextCellValue(item.docId ?? '');
         sheetObject
             .cell(CellIndex.indexByColumnRow(columnIndex: 4, rowIndex: i + 1))
-            .value = TextCellValue(item.cUSTID ?? '');
+            .value = TextCellValue(item.customerId ?? '');
         sheetObject
             .cell(CellIndex.indexByColumnRow(columnIndex: 5, rowIndex: i + 1))
-            .value = TextCellValue('${item.aMOUNT ?? ''}');
+            .value = TextCellValue('${item.amount ?? ''}');
         sheetObject
             .cell(CellIndex.indexByColumnRow(columnIndex: 6, rowIndex: i + 1))
-            .value = TextCellValue(item.vALUEDATE ?? '');
+            .value = TextCellValue(item.valueDate ?? '');
         sheetObject
             .cell(CellIndex.indexByColumnRow(columnIndex: 7, rowIndex: i + 1))
-            .value = TextCellValue(item.sENDDATE ?? '');
+            .value = TextCellValue(item.sendDate ?? '');
         sheetObject
             .cell(CellIndex.indexByColumnRow(columnIndex: 8, rowIndex: i + 1))
-            .value = TextCellValue(item.sENDTRANSID ?? '');
+            .value = TextCellValue(item.sendTransactionId ?? '');
         sheetObject
             .cell(CellIndex.indexByColumnRow(columnIndex: 9, rowIndex: i + 1))
-            .value = TextCellValue(item.cORPORATEID ?? '');
+            .value = TextCellValue(item.coOperateId ?? '');
         sheetObject
             .cell(CellIndex.indexByColumnRow(columnIndex: 10, rowIndex: i + 1))
-            .value = TextCellValue(item.bATCHNO ?? '');
+            .value = TextCellValue(item.batchNumber ?? '');
         sheetObject
             .cell(CellIndex.indexByColumnRow(columnIndex: 11, rowIndex: i + 1))
-            .value = TextCellValue(item.cUSTNAME ?? '');
+            .value = TextCellValue(item.customerName ?? '');
         sheetObject
             .cell(CellIndex.indexByColumnRow(columnIndex: 12, rowIndex: i + 1))
-            .value = TextCellValue(item.bENEFICIARYACCOUNT ?? '');
+            .value = TextCellValue(item.beneficiaryAccount ?? '');
         sheetObject
             .cell(CellIndex.indexByColumnRow(columnIndex: 13, rowIndex: i + 1))
-            .value = TextCellValue(item.iFSCCODE ?? '');
+            .value = TextCellValue(item.iFSCCode ?? '');
         sheetObject
             .cell(CellIndex.indexByColumnRow(columnIndex: 14, rowIndex: i + 1))
-            .value = TextCellValue(item.sEQNO ?? '');
+            .value = TextCellValue(item.sEQNumber ?? '');
       }
       String formattedDate = DateFormat('MMM d, yyyy').format(DateTime.now());
       String fileName = 'payments_report_$formattedDate.xlsx';
@@ -383,7 +472,7 @@ class ImpsInquiryProvider extends ChangeNotifier {
 
   //export to pdf
   Future<void> exportToPdf(BuildContext context) async {
-    if (impsTableModels.items!.isEmpty) {
+    if (impsReportList.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No data to export')),
       );
@@ -399,10 +488,10 @@ class ImpsInquiryProvider extends ChangeNotifier {
     final fontDataBold = await rootBundle.load("assets/fonts/Poppins-Bold.ttf");
     final poppinsBold = pw.Font.ttf(fontDataBold);
     final fontDataSemiBold =
-    await rootBundle.load("assets/fonts/Poppins-SemiBold.ttf");
+        await rootBundle.load("assets/fonts/Poppins-SemiBold.ttf");
     final poppinsSemiBold = pw.Font.ttf(fontDataSemiBold);
     final fontDataRegular =
-    await rootBundle.load("assets/fonts/Poppins-Regular.ttf");
+        await rootBundle.load("assets/fonts/Poppins-Regular.ttf");
     final poppinsRegular = pw.Font.ttf(fontDataRegular);
     List<String> headers = [
       'Module',
@@ -422,23 +511,23 @@ class ImpsInquiryProvider extends ChangeNotifier {
       'SeqNumber'
     ];
 
-    List<List<String>> tableData = impsTableModels.items!.map((item) {
+    List<List<String>> tableData = impsReportList.map((item) {
       return [
         item.mODDESCR ?? '',
-        item.bRANCHNAME ?? '',
-        "${item.bRANCHID ?? ''}",
-        item.dOCID ?? '',
-        item.cUSTID ?? '',
-        "${item.aMOUNT ?? ''}",
-        item.vALUEDATE ?? '',
-        item.sENDDATE ?? '',
-        item.sENDTRANSID ?? '',
-        item.cORPORATEID ?? '',
-        item.bATCHNO ?? '',
-        item.cUSTNAME ?? '',
-        item.bENEFICIARYACCOUNT ?? '',
-        item.iFSCCODE ?? '',
-        item.sEQNO ?? ''
+        item.branchName ?? '',
+        "${item.branchId ?? ''}",
+        item.docId ?? '',
+        item.customerId ?? '',
+        "${item.amount ?? ''}",
+        item.valueDate ?? '',
+        item.sendDate ?? '',
+        item.sendTransactionId ?? '',
+        item.coOperateId ?? '',
+        item.batchNumber ?? '',
+        item.customerName ?? '',
+        item.beneficiaryAccount ?? '',
+        item.iFSCCode ?? '',
+        item.sEQNumber ?? ''
       ];
     }).toList();
 
@@ -446,15 +535,18 @@ class ImpsInquiryProvider extends ChangeNotifier {
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4.landscape,
         header: (pw.Context context) {
-          return pw.Column(children: [pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.center,
-              crossAxisAlignment: pw.CrossAxisAlignment.center,
-              children: [
-                pw.SizedBox(
-                    height: 25,
-                    width: 100,
-                    child: pw.Image(image, fit: pw.BoxFit.fill)),
-              ]),pw.SizedBox(height: 10)]);
+          return pw.Column(children: [
+            pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.center,
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                children: [
+                  pw.SizedBox(
+                      height: 25,
+                      width: 100,
+                      child: pw.Image(image, fit: pw.BoxFit.fill)),
+                ]),
+            pw.SizedBox(height: 10)
+          ]);
         },
         footer: (pw.Context context) {
           return pw.Text(
@@ -499,9 +591,9 @@ class ImpsInquiryProvider extends ChangeNotifier {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
-                'PDF file downloaded: $fileName',
-                style: const TextStyle(fontSize: 12, fontFamily: 'poppinsRegular'),
-              )),
+            'PDF file downloaded: $fileName',
+            style: const TextStyle(fontSize: 12, fontFamily: 'poppinsRegular'),
+          )),
         );
       });
     } else {
@@ -514,10 +606,10 @@ class ImpsInquiryProvider extends ChangeNotifier {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Text(
-                  'PDF file saved to: $filePath',
-                  style:
+              'PDF file saved to: $filePath',
+              style:
                   const TextStyle(fontSize: 12, fontFamily: 'poppinsRegular'),
-                )),
+            )),
           );
         });
       } else {
@@ -525,14 +617,18 @@ class ImpsInquiryProvider extends ChangeNotifier {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
                 content: Text(
-                  'Storage permission denied',
-                  style:
+              'Storage permission denied',
+              style:
                   const TextStyle(fontSize: 12, fontFamily: 'poppinsRegular'),
-                )),
+            )),
           );
         });
       }
     }
   }
 
+  //file picker
+  PlatformFile? _profilePhoto;
+
+  PlatformFile? get profilePhoto => _profilePhoto;
 }

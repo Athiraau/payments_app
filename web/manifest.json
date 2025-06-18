@@ -1,6 +1,6 @@
 {
-    "name": "payments_application",
-    "short_name": "payments_application",
+    "name": "flutter_payment_app",
+    "short_name": "flutter_payment_app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -7,9 +7,9 @@ class AssetsPath {
   static const String appBackground = '${images}app_background.jpg';
   // logo
   static const String user = '${icons}mingcute_user-4-fill.svg';
-  static const String money = '${icons}003-money 1.svg';
+  static const String money = '${icons}Category.svg';
   static const String bank = '${icons}mdi_bank.svg';
-  static const String home = '${icons}solar_home-bold-duotone.svg';
+  static const String home = '${icons}Home.svg';
   static const String creditCard = '${icons}002-credit-card 1.svg';
   static const String arrowBack = '${icons}ep_arrow-right.svg';
   static const String approval = '${icons}approval.svg';

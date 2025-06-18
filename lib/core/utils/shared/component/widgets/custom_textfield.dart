@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../config/styles/colors.dart';
 
@@ -13,7 +14,8 @@ class CustomTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final bool obscureText;
   final IconButton? suffixIcon;
-  final IconButton? prefixIcon;
+  final List<TextInputFormatter>? inputFormatters;
+  final Widget? prefixIcon;
   final bool readOnly;
 
   const CustomTextField({
@@ -28,24 +30,24 @@ class CustomTextField extends StatelessWidget {
     this.validator,
     this.obscureText = false,
     this.suffixIcon,
-    this.prefixIcon,
-    this.readOnly = false,
+    this.prefixIcon, // Use this for the prefix icon
+    this.readOnly = false, this.inputFormatters,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      inputFormatters:inputFormatters,
       controller: controller,
       readOnly: readOnly,
       validator: validator,
       obscureText: obscureText,
       keyboardType: keyboardType,
       style: const TextStyle(
-          color: Colors.black, fontFamily: 'poppinsRegular', fontSize: 14),
+          color: Colors.black, fontFamily: 'poppinsRegular', fontSize: 12),
       decoration: InputDecoration(
         floatingLabelBehavior: FloatingLabelBehavior.never,
-        filled: true,
-        prefix: prefixIcon,
+        prefixIcon: prefixIcon, // Use prefixIcon instead of prefix
         fillColor: const Color(0xfff5f5f5),
         suffixIcon: suffixIcon,
         hintText: hintTxt,

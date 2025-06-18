@@ -105,4 +105,41 @@ class SbiProvider extends ChangeNotifier {
     _filteredItems = List.from(reportItem);
     notifyListeners();
   }
+
+  int _loadingIndex=-1;
+  int get loadingIndex => _loadingIndex;
+
+  set loadingIndex(int value) {
+    _loadingIndex = value;
+  }
+
+  //transition
+
+  set curIndex(int value) {
+    _curIndex = value;
+  }
+
+  int _selectedIndex = -1;
+
+  int get selectedIndex => _selectedIndex;
+
+  set selectedIndex(int value) {
+    _selectedIndex = value;
+  }
+
+  void onEnter(int index) {
+    selectedIndex = index;
+    notifyListeners();
+  }
+
+  void onExit() {
+    selectedIndex = -1;
+    notifyListeners();
+  }
+
+  void resetItem() {
+    selectedIndex = -1;
+    curIndex = 0;
+    notifyListeners();
+  }
 }

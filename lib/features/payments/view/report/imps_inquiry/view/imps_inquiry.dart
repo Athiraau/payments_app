@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:payments_application/core/helpers/routes/app_route_name.dart';
-import 'package:payments_application/core/helpers/routes/app_route_path.dart';
-import 'package:payments_application/core/utils/shared/component/widgets/custom_text.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../../core/utils/config/styles/colors.dart';
 import '../../../../../../core/utils/shared/component/widgets/custom_button.dart';
+import '../../../../../../core/utils/shared/component/widgets/custom_text.dart';
 import '../../../../../../core/utils/shared/component/widgets/custom_textfield.dart';
 import '../../../../../../core/utils/shared/constant/assets_path.dart';
 import '../../../../../bread_crumbs/view/bread_crumbs.dart';
@@ -18,7 +16,6 @@ class ImpsInquiry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    final _textController = TextEditingController();
     final isTablet = size.width >= 900;
     return Container(
       width: size.width,
@@ -181,7 +178,8 @@ class ImpsInquiry extends StatelessWidget {
                                                   'Enter Corporate ID/Loan No',
                                               hintTxt:
                                                   'Enter Corporate ID/Loan No',
-                                              controller: _textController,
+                                              controller: impsInquiryProvider
+                                                  .textController,
                                               validator: (value) {
                                                 if (value == null ||
                                                     value.isEmpty) {
@@ -199,28 +197,30 @@ class ImpsInquiry extends StatelessWidget {
                                               onChanged: (value) {
                                                 impsInquiryProvider
                                                     .validateUserId(
-                                                    id: _textController
-                                                        .text,
-                                                    type:
-                                                    impsInquiryProvider.curDocTitle);
+                                                        id: impsInquiryProvider
+                                                            .textController
+                                                            .text,
+                                                        type:
+                                                            impsInquiryProvider
+                                                                .curDocTitle);
                                               },
                                               obscureText: false,
                                             ),
                                           ),
                                           impsInquiryProvider
-                                              .validateId.isNotEmpty
+                                                  .validateId.isNotEmpty
                                               ? Padding(
-                                            padding: const EdgeInsets
-                                                .symmetric(vertical: 5),
-                                            child: CustomText(
-                                              text: impsInquiryProvider
-                                                  .validateId,
-                                              fontSize: 10,
-                                              fontFamily:
-                                              'poppinsRegular',
-                                              color: Colors.red,
-                                            ),
-                                          )
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 5),
+                                                  child: CustomText(
+                                                    text: impsInquiryProvider
+                                                        .validateId,
+                                                    fontSize: 10,
+                                                    fontFamily:
+                                                        'poppinsRegular',
+                                                    color: Colors.red,
+                                                  ),
+                                                )
                                               : const SizedBox.shrink(),
                                           SizedBox(
                                             width: size.width,
@@ -256,30 +256,26 @@ class ImpsInquiry extends StatelessWidget {
                                                           : size.width * 0.30,
                                                       height: 35,
                                                       onPressed: () {
-                                                        if (_textController
-                                                            .text.isEmpty) {
-                                                          impsInquiryProvider
-                                                              .validateUserId(
-                                                                  id: _textController
-                                                                      .text,
-                                                                  type: impsInquiryProvider
-                                                                      .selectedOption);
+                                                        if (impsInquiryProvider
+                                                            .textController
+                                                            .text
+                                                            .isEmpty) {
+                                                          impsInquiryProvider.validateUserId(
+                                                              id: impsInquiryProvider
+                                                                  .textController
+                                                                  .text,
+                                                              type: impsInquiryProvider
+                                                                  .selectedOption);
                                                         } else {
-
                                                           impsInquiryProvider
-                                                              .fetchimpxData(
+                                                              .fetchImpsData(
                                                                   context:
                                                                       context,
-                                                                  id: _textController
+                                                                  id: impsInquiryProvider
+                                                                      .textController
                                                                       .text);
-                                                          // context.goNamed(RoutesName
-                                                          //     .impsInquiryReport);
                                                         }
-                                                      }
-                                                      // context.goNamed(RoutesName
-                                                      //     .impsInquiryReport);
-
-                                                      ),
+                                                      }),
                                                   const SizedBox(
                                                     width: 10,
                                                   ),
@@ -302,9 +298,7 @@ class ImpsInquiry extends StatelessWidget {
                                                       impsInquiryProvider
                                                           .mouseHover();
                                                     },
-                                                    onPressed: () {
-                                                      context.pop();
-                                                    },
+                                                    onPressed: () {},
                                                   ),
                                                 ],
                                               ),

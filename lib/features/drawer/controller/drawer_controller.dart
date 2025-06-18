@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:payments_application/core/utils/shared/constant/assets_path.dart';
-
 import '../../../core/helpers/routes/app_route_path.dart';
+import '../../../core/utils/shared/constant/assets_path.dart';
 
 class SliderProvider extends ChangeNotifier {
+  ///List for slider items
   var items = [
     {"logo": AssetsPath.home, "title": "Home", 'route': RoutesPath.home},
     {
-      "logo": AssetsPath.creditCard,
+      "logo": AssetsPath.debitAdvice,
       "title": "Payments",
       'route': RoutesPath.payments
     },
@@ -24,13 +24,16 @@ class SliderProvider extends ChangeNotifier {
     },
     {"logo": AssetsPath.user, "title": "Others", 'route': RoutesPath.others},
   ];
+
+  ///Set initially selected item has home
   String _selectedItem = 'Home';
   String get selectedItem => _selectedItem;
-  void setSelectedItem(String item) {
-    _selectedItem = item;
-    notifyListeners();
+
+  set selectedItem(String value) {
+    _selectedItem = value;
   }
 
+  ///Expand drawer
   bool _isDrawerExpanded = true;
 
   bool get isDrawerExpanded => _isDrawerExpanded;
@@ -40,6 +43,7 @@ class SliderProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  ///Hover over the drawer to check the selected item card
   bool _isSelected = false;
 
   bool get isSelected => _isSelected;
