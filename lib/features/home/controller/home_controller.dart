@@ -1,17 +1,23 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:payments_application/core/utils/config/styles/colors.dart';
+import 'package:pdf/widgets.dart';
+import 'package:provider/provider.dart';
 import '../../../core/helpers/cache_helper/app_cache_helper.dart';
 import '../../../core/helpers/encryption/app_encryption_helper.dart';
 import '../../../core/helpers/encryption/encryption_value.dart';
 import '../../../core/helpers/routes/app_route_name.dart';
 import '../../../core/helpers/routes/app_route_path.dart';
+import '../../../core/helpers/session/controller/session_controller.dart';
+import '../../../core/utils/config/styles/colors.dart';
 import '../../../core/utils/shared/component/widgets/custom_toast.dart';
 import '../../../core/utils/shared/constant/assets_path.dart';
+import '../model/emp_detail_model.dart';
 import '../repository/home_repository.dart';
 
 class HomeProvider extends ChangeNotifier {
+  TextEditingController searchController = TextEditingController();
+
   HomeProvider() {
     _initialize();
   }
@@ -21,6 +27,34 @@ class HomeProvider extends ChangeNotifier {
 
   set isLoading(bool value) {
     _isLoading = value;
+  }
+
+  //transition
+
+  void onEnter(int index) {
+    selectedIndex = index;
+    notifyListeners();
+  }
+
+  void onExit() {
+    selectedIndex = -1;
+    notifyListeners();
+  }
+
+  void resetItem() {
+    selectedIndex = -1;
+    curIndex = 0;
+    notifyListeners();
+  }
+
+//payment status check api
+  int selectedIndex = -1;
+
+  int _curIndex = 0;
+  int get curIndex => _curIndex;
+
+  set curIndex(int value) {
+    _curIndex = value;
   }
 
   List<Map<String, dynamic>> _homeItems = [];
@@ -41,7 +75,7 @@ class HomeProvider extends ChangeNotifier {
       //   "cardTitle": AppColor.card1Title
       // },
       {
-        "logo": AssetsPath.creditCard,
+        "logo": AssetsPath.debitAdvice,
         "title": "Payments",
         'route': RoutesPath.payments,
         "cardColor": AppColor.card7,
@@ -95,46 +129,45 @@ class HomeProvider extends ChangeNotifier {
   }
 
   //handle session
-  String _curSession =
-      "34C94FBEFBD54C3036D2001D88A3749E738CB833FCA0D0099BF7DC612E75598C195656ABC439E04BB11ED5A948558AD43241FF2BC11C42D4D44AC86973CB9DDD";
-
-  String get curSession => _curSession;
 
   final _api = HomeRepository();
-  Future<void> sessionApi({required BuildContext context}) async {
+  Future<void> sessionApi(
+      {required BuildContext context, required String curSession}) async {
     try {
       isLoading = true;
       notifyListeners();
-      var data = {"data": curSession};
+      print("call $curSession");
+      var data = {"data": curSession.trim()};
       final response = await _api.sessionApi(data);
 
       if (response != null && response['status'] == 200) {
         if (response['data']['response'] != null) {
-          final _splitted = "${response['data']['response']}".split('|');
-
-          final _empCode = _splitted[2].split('!');
-          final _appCacheHelper = AppCacheHelper();
-          final _appEncryptionHelper = AppEncryptionHelper();
-          final encryptEmpCode = _appEncryptionHelper.encryptData(
-              data: _empCode[0].toString(),
+          final splitted = "${response['data']['response']}".split('|');
+          final empCode = splitted[2].split('!');
+          final appCacheHelper = AppCacheHelper();
+          final appEncryptionHelper = AppEncryptionHelper();
+          final encryptEmpCode = appEncryptionHelper.encryptData(
+              data: empCode[0].toString(),
               baseKey: EncryptionValue.keyAsString,
               ivKey: EncryptionValue.ivAsString);
-          final encryptBranchId = _appEncryptionHelper.encryptData(
-              data: _splitted[0].toString(),
+          final encryptBranchId = appEncryptionHelper.encryptData(
+              data: splitted[0].toString(),
               baseKey: EncryptionValue.keyAsString,
               ivKey: EncryptionValue.ivAsString);
-          final encryptBranchName = _appEncryptionHelper.encryptData(
-              data: _splitted[1].toString(),
+          final encryptBranchName = appEncryptionHelper.encryptData(
+              data: splitted[1].toString(),
               baseKey: EncryptionValue.keyAsString,
               ivKey: EncryptionValue.ivAsString);
-          _appCacheHelper.saveData(key: 'empCode', value: encryptEmpCode);
-          _appCacheHelper.saveData(key: 'branchID', value: encryptBranchId);
-          _appCacheHelper.saveData(key: 'branchName', value: encryptBranchName);
+          appCacheHelper.saveData(key: 'empCode', value: encryptEmpCode);
+          appCacheHelper.saveData(key: 'branchID', value: encryptBranchId);
+          appCacheHelper.saveData(key: 'branchName', value: encryptBranchName);
           WidgetsBinding.instance.addPostFrameCallback((_) {
             context.goNamed(RoutesName.home);
           });
           notifyListeners();
-        } else {}
+        } else {
+          CustomToast.showCustomToast(message: "Unexpected error occurred");
+        }
       } else {
         CustomToast.showCustomToast(message: "Unexpected error occurred");
         notifyListeners();
@@ -147,5 +180,40 @@ class HomeProvider extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
+  }
+
+  var empDetailModel = EmpDetailModel();
+  Future<void> employeeDetails() async {
+    try {
+      final response = await _api.employeeDetails();
+
+      if (response != null && response['status'] == 200) {
+        empDetailModel = EmpDetailModel.fromJson(response['data']);
+        notifyListeners();
+      } else {
+        CustomToast.showCustomToast(message: "Unexpected error occurred");
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error: $e");
+      }
+      CustomToast.showCustomToast(
+          message: "An error occurred while checking payment status");
+    }
+  }
+
+  int _loadingIndex = -1;
+  int get loadingIndex => _loadingIndex;
+
+  set loadingIndex(int value) {
+    _loadingIndex = value;
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    searchController.clear();
   }
 }

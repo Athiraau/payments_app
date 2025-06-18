@@ -1,6 +1,9 @@
 class RoutesName {
   static const String splash = 'splash';
   static const String home = 'home';
+  static const String error_page = 'error_page';
+  static const String connectivity_page = 'connectivity_page';
+  static const String session_expires = 'session_expires';
   static const String others = 'others';
   static const String sbi = 'sbi';
   static const String otp_based = 'otp_based';
@@ -67,4 +70,5 @@ class RoutesName {
   static const String crn_excel_report = 'crn_excel_report';
   static const String live_employee_report = 'live_employee_report';
   static const String paymentStatusReport = 'payment_status_report';
+  static const String impsInquiryReport = 'imps_inquiry_report';
 }

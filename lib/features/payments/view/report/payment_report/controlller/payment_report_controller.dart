@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PaymentReportProvider with ChangeNotifier {
+  ///List of items for payment report page
   final List<Map<String, dynamic>> _payments = [
     {
       "id": 1,

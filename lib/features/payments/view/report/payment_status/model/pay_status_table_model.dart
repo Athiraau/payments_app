@@ -1,27 +1,4 @@
-class PayStatusTableModel {
-  List<Response>? response;
-
-  PayStatusTableModel({this.response});
-
-  PayStatusTableModel.fromJson(Map<String, dynamic> json) {
-    if (json['response'] != null) {
-      response = <Response>[];
-      json['response'].forEach((v) {
-        response!.add(new Response.fromJson(v));
-      });
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.response != null) {
-      data['response'] = this.response!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
-}
-
-class Response {
+class PaymentStatusTable {
   String? mODDESCR;
   String? bRANCHNAME;
   int? bRANCHID;
@@ -38,7 +15,7 @@ class Response {
   String? iFSCCODE;
   String? sEQNO;
 
-  Response(
+  PaymentStatusTable(
       {this.mODDESCR,
         this.bRANCHNAME,
         this.bRANCHID,
@@ -55,7 +32,7 @@ class Response {
         this.iFSCCODE,
         this.sEQNO});
 
-  Response.fromJson(Map<String, dynamic> json) {
+  PaymentStatusTable.fromJson(Map<String, dynamic> json) {
     mODDESCR = json['MOD_DESCR'];
     bRANCHNAME = json['BRANCH_NAME'];
     bRANCHID = json['BRANCH_ID'];

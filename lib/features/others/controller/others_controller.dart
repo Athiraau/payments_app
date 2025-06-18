@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../core/helpers/routes/app_route_path.dart';
 import '../../../core/utils/config/styles/colors.dart';
 import '../../../core/utils/shared/constant/assets_path.dart';
-class OthersProvider extends ChangeNotifier{
+
+class OthersProvider extends ChangeNotifier {
   OthersProvider() {
     _initialize();
   }
@@ -29,7 +30,7 @@ class OthersProvider extends ChangeNotifier{
       },
       {
         "logo": AssetsPath.certificate,
-        "title":  "Interest Certificate",
+        "title": "Interest Certificate",
         'route': RoutesPath.insertCertificate,
         "cardColor": AppColor.card2,
         "cardTitle": AppColor.card2Title
@@ -46,9 +47,49 @@ class OthersProvider extends ChangeNotifier{
     } else {
       _filteredItems = _othersItems
           .where((item) =>
-          item["title"].toLowerCase().contains(query.toLowerCase()))
+              item["title"].toLowerCase().contains(query.toLowerCase()))
           .toList();
     }
+    notifyListeners();
+  }
+
+  int _loadingIndex = -1;
+  int get loadingIndex => _loadingIndex;
+
+  set loadingIndex(int value) {
+    _loadingIndex = value;
+  }
+
+  //transition
+  int _curIndex = 0;
+
+  int get curIndex => _curIndex;
+
+  set curIndex(int value) {
+    _curIndex = value;
+  }
+
+  int _selectedIndex = -1;
+
+  int get selectedIndex => _selectedIndex;
+
+  set selectedIndex(int value) {
+    _selectedIndex = value;
+  }
+
+  void onEnter(int index) {
+    selectedIndex = index;
+    notifyListeners();
+  }
+
+  void onExit() {
+    selectedIndex = -1;
+    notifyListeners();
+  }
+
+  void resetItem() {
+    selectedIndex = -1;
+    curIndex = 0;
     notifyListeners();
   }
 }

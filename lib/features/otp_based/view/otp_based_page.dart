@@ -1,38 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:payments_application/features/otp_based/controller/opt_based_controller.dart';
-import 'package:payments_application/features/sbi/controller/sbi_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../core/helpers/routes/app_route_name.dart';
 import '../../../core/helpers/routes/app_route_path.dart';
 import '../../../core/utils/config/styles/colors.dart';
+import '../../../core/utils/shared/component/widgets/custom_text.dart';
 import '../../../core/utils/shared/component/widgets/custom_textfield.dart';
 import '../../../core/utils/shared/component/widgets/item_card_widget.dart';
 import '../../../core/utils/shared/constant/assets_path.dart';
 import '../../bread_crumbs/view/bread_crumbs.dart';
-
+import '../controller/opt_based_controller.dart';
 class OtpBasedPage extends StatefulWidget {
-  OtpBasedPage({super.key});
+  const OtpBasedPage({super.key});
 
   @override
   State<OtpBasedPage> createState() => _OtpBasedPageState();
 }
 
 class _OtpBasedPageState extends State<OtpBasedPage> {
+  final TextEditingController searchController = TextEditingController();
+  late OtpBasedProvider otpBasedProvider;
+
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<OtpBasedProvider>(context, listen: false).setTabIndex(0);
-    });
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    otpBasedProvider = Provider.of<OtpBasedProvider>(context);
   }
 
-  TextEditingController searchController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => otpBasedProvider.setTabIndex(0));
+  }
 
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -48,15 +57,14 @@ class _OtpBasedPageState extends State<OtpBasedPage> {
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const BreadCrumbs(title: 'Otp Based Cash Withdrawal',),
+            ///Bread crumbs
+            const BreadCrumbs(title: 'Otp based cash withdrawal'),
             const SizedBox(height: 10),
             Expanded(
               child: Container(
                 width: size.width,
-                height: double.infinity,
                 decoration: BoxDecoration(
                   color: AppColor.primaryColor,
                   border: Border.all(width: 1, color: AppColor.dividerColor),
@@ -78,6 +86,7 @@ class _OtpBasedPageState extends State<OtpBasedPage> {
                       children: [
                         Row(
                           children: [
+                            ///Search bar
                             SizedBox(
                               width: size.width * 0.50,
                               height: 40,
@@ -86,14 +95,16 @@ class _OtpBasedPageState extends State<OtpBasedPage> {
                                 hintTxt: 'Enter text',
                                 controller: searchController,
                                 keyboardType: TextInputType.text,
-                                labelTxtStyle: TextStyle(
-                                    color: AppColor.txtFieldItemColor),
-                                hintTxtStyle: TextStyle(
-                                    color: AppColor.txtFieldItemColor),
+                                labelTxtStyle: const TextStyle(
+                                  color: AppColor.txtFieldItemColor,
+                                ),
+                                hintTxtStyle: const TextStyle(
+                                  color: AppColor.txtFieldItemColor,
+                                ),
                                 onChanged: (value) {
-                                  context
-                                      .read<OtpBasedProvider>()
-                                      .searchItems(value);
+                                  if (mounted) {
+                                    otpBasedProvider.searchItems(value);
+                                  }
                                 },
                                 validator: (value) => null,
                                 obscureText: false,
@@ -117,22 +128,21 @@ class _OtpBasedPageState extends State<OtpBasedPage> {
                           padding: const EdgeInsets.all(5),
                           child: TabBar(
                             onTap: (index) {
-                              context
-                                  .read<OtpBasedProvider>()
-                                  .setTabIndex(index);
+                              otpBasedProvider.setTabIndex(index);
                             },
                             indicator: BoxDecoration(
-                                color: AppColor.drawerColor,
-                                borderRadius: BorderRadius.circular(12)),
+                              color: AppColor.drawerColor,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             indicatorSize: TabBarIndicatorSize.tab,
                             indicatorColor: Colors.black,
-                            labelStyle: TextStyle(
+                            labelStyle: const TextStyle(
                               fontFamily: 'poppinsRegular',
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
                             ),
-                            unselectedLabelStyle: TextStyle(
+                            unselectedLabelStyle: const TextStyle(
                               fontFamily: 'poppinsRegular',
                               color: AppColor.txtColorTab,
                               fontWeight: FontWeight.bold,
@@ -146,9 +156,9 @@ class _OtpBasedPageState extends State<OtpBasedPage> {
                             ],
                           ),
                         ),
-                        Expanded(
+                        const Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            padding: EdgeInsets.symmetric(vertical: 10),
                             child: TabBarView(
                               children: [
                                 RegistrationTabItem(),
@@ -171,145 +181,302 @@ class _OtpBasedPageState extends State<OtpBasedPage> {
   }
 }
 
-class RegistrationTabItem extends StatelessWidget {
+class RegistrationTabItem extends StatefulWidget {
   const RegistrationTabItem({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
-    final paymentProvider = Provider.of<OtpBasedProvider>(context);
-    final isMobile = size.width < 600;
-    final isTablet = size.width >= 600 && size.width < 1024;
-    final crossAxisCount = isMobile ? 1 : (isTablet ? 2 : 3);
-
-    if (paymentProvider.isLoading) {
-      return isMobile
-          ? shimmerListView(itemCount: 6)
-          : shimmerGridView(crossAxisCount: crossAxisCount, itemCount: 6);
-    }
-
-    if (paymentProvider.filteredItems.isEmpty) {
-      return const Center(
-        child: Text(
-          "No items found",
-          style: TextStyle(
-            color: AppColor.drawerColor,
-            fontSize: 16,
-            fontFamily: 'poppinsRegular',
-          ),
-        ),
-      );
-    }
-
-    return isMobile
-        ? buildListView(paymentProvider.filteredItems)
-        : buildGridView(paymentProvider.filteredItems, crossAxisCount);
-  }
-
-  Widget shimmerListView({required int itemCount}) {
-    return ListView.builder(
-      itemCount: itemCount,
-      itemBuilder: (context, index) => Padding(
-        padding: const EdgeInsets.only(bottom: 10.0),
-        child: ShimmerWidget(height: 100, width: double.infinity),
-      ),
-    );
-  }
-
-  Widget shimmerGridView(
-      {required int crossAxisCount, required int itemCount}) {
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 2.5,
-      ),
-      itemCount: itemCount,
-      itemBuilder: (context, index) =>
-          ShimmerWidget(height: 100, width: double.infinity),
-    );
-  }
-
-  Widget buildListView(List<Map<String, dynamic>> items) {
-    return ListView.builder(
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        final item = items[index];
-        return SizedBox(
-          width: double.infinity,
-          height: 100,
-          child: GestureDetector(
-            onTap: () {
-              if (item['route'] == RoutesPath.re_initiate) {
-                context.goNamed(
-                  RoutesName.reInitiate,
-                  pathParameters: {
-                    "userId": "1001",
-                    "userName": "Raihan",
-                  },
-                );
-              } else {
-                context.go(item['route'] as String);
-              }
-            },
-            child: BuildCardItem(item: item,),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget buildGridView(List<Map<String, dynamic>> items, int crossAxisCount) {
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 2.5,
-      ),
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        final item = items[index];
-        return GestureDetector(
-          onTap: () {
-            if (item['route'] == RoutesPath.re_initiate) {
-              context.goNamed(
-                RoutesName.reInitiate,
-                pathParameters: {
-                  "userId": "1001",
-                  "userName": "Raihan",
-                },
-              );
-            } else {
-              context.go(item['route'] as String);
-            }
-          },
-          child: BuildGridItem(item: item,),
-        );
-      },
-    );
-  }
+  State<RegistrationTabItem> createState() => _RegistrationTabItemState();
 }
 
-class ReportTabItem extends StatelessWidget {
-  const ReportTabItem({super.key});
-
+class _RegistrationTabItemState extends State<RegistrationTabItem> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      final bankRecoProvider =
+      Provider.of<OtpBasedProvider>(context, listen: false);
+      bankRecoProvider.setTabIndex(0);
+    });
+  }
   @override
   Widget build(BuildContext context) {
-    return const RegistrationTabItem();
+    var size = MediaQuery.of(context).size;
+
+    return Consumer<OtpBasedProvider>(
+      builder: (context, otpBasedProvider, child) {
+        final isMobile = size.width < 600;
+        final isTablet = size.width >= 600 && size.width < 1024;
+        final crossAxisCount = isMobile ? 1 : (isTablet ? 3 : 4);
+
+        if (otpBasedProvider.isLoading) {
+          return isMobile
+              ? shimmerListView(itemCount: 6)
+              : shimmerGridView(crossAxisCount: crossAxisCount, itemCount: 6);
+        }
+
+        if (otpBasedProvider.filteredItems.isEmpty) {
+          return const Center(
+            child: CustomText(
+              text: "No items found",
+              color: AppColor.drawerColor,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          );
+        }
+
+        return isMobile
+            ? buildListView(otpBasedProvider.filteredItems)
+            : buildGridView(otpBasedProvider.filteredItems, crossAxisCount);
+      },
+    );
   }
 }
 
-class FundTransferTabItem extends StatelessWidget {
+class FundTransferTabItem extends StatefulWidget {
   const FundTransferTabItem({super.key});
 
   @override
+  State<FundTransferTabItem> createState() => _FundTransferTabItemState();
+}
+
+class _FundTransferTabItemState extends State<FundTransferTabItem> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      final bankRecoProvider =
+      Provider.of<OtpBasedProvider>(context, listen: false);
+      bankRecoProvider.setTabIndex(1);
+    });
+  }
+  @override
   Widget build(BuildContext context) {
-    return const RegistrationTabItem();
+    var size = MediaQuery.of(context).size;
+
+    return Consumer<OtpBasedProvider>(
+      builder: (context, otpBasedProvider, child) {
+        final isMobile = size.width < 600;
+        final isTablet = size.width >= 600 && size.width < 1024;
+        final crossAxisCount = isMobile ? 1 : (isTablet ? 3 : 4);
+
+        if (otpBasedProvider.isLoading) {
+          return isMobile
+              ? shimmerListView(itemCount: 6)
+              : shimmerGridView(crossAxisCount: crossAxisCount, itemCount: 6);
+        }
+
+        if (otpBasedProvider.filteredItems.isEmpty) {
+          return const Center(
+            child: CustomText(
+              text: "No items found",
+              color: AppColor.drawerColor,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          );
+        }
+
+        return isMobile
+            ? buildListView(otpBasedProvider.filteredItems)
+            : buildGridView(otpBasedProvider.filteredItems, crossAxisCount);
+      },
+    );
   }
 }
 
+class ReportTabItem extends StatefulWidget {
+  const ReportTabItem({super.key});
+
+  @override
+  State<ReportTabItem> createState() => _ReportTabItemState();
+}
+
+class _ReportTabItemState extends State<ReportTabItem> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      final bankRecoProvider =
+      Provider.of<OtpBasedProvider>(context, listen: false);
+      bankRecoProvider.setTabIndex(2);
+    });
+  }
+  @override
+  Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+
+    return Consumer<OtpBasedProvider>(
+      builder: (context, otpBasedProvider, child) {
+        final isMobile = size.width < 600;
+        final isTablet = size.width >= 600 && size.width < 1024;
+        final crossAxisCount = isMobile ? 1 : (isTablet ? 3 : 4);
+
+        if (otpBasedProvider.isLoading) {
+          return isMobile
+              ? shimmerListView(itemCount: 6)
+              : shimmerGridView(crossAxisCount: crossAxisCount, itemCount: 6);
+        }
+
+        if (otpBasedProvider.filteredItems.isEmpty) {
+          return const Center(
+            child: CustomText(
+              text: "No items found",
+              color: AppColor.drawerColor,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          );
+        }
+
+        return isMobile
+            ? buildListView(otpBasedProvider.filteredItems)
+            : buildGridView(otpBasedProvider.filteredItems, crossAxisCount);
+      },
+    );
+  }
+}
+
+Widget shimmerListView({required int itemCount}) {
+  return ListView.builder(
+    itemCount: itemCount,
+    itemBuilder: (context, index) => const Padding(
+      padding: EdgeInsets.only(bottom: 10.0),
+      child: ShimmerWidget(height: 100, width: double.infinity),
+    ),
+  );
+}
+
+Widget shimmerGridView({required int crossAxisCount, required int itemCount}) {
+  return GridView.builder(
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: crossAxisCount,
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
+      childAspectRatio: 2.2,
+    ),
+    itemCount: itemCount,
+    itemBuilder: (context, index) =>
+    const ShimmerWidget(height: 100, width: double.infinity),
+  );
+}
+
+Widget buildListView(List<Map<String, dynamic>> items) {
+  return ListView.builder(
+    itemCount: items.length,
+    itemBuilder: (context, index) {
+      final item = items[index];
+      return SizedBox(
+        width: double.infinity,
+        height: 70,
+        child: Consumer<OtpBasedProvider>(
+          builder: (context, otpBasedProvider, child) {
+            otpBasedProvider.curIndex = index;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: MouseRegion(
+                opaque: false,
+                cursor: MouseCursor.defer,
+                onEnter: (_) => otpBasedProvider.onEnter(index),
+                onExit: (_) => otpBasedProvider.onExit(),
+                onHover: (_) {
+                  otpBasedProvider.selectedIndex = index;
+                },
+                child: Transform.scale(
+                  scale: otpBasedProvider.selectedIndex == index ? 1.0 : 0.96,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.0),
+                      border: Border.all(
+                        color: otpBasedProvider.curIndex ==
+                            otpBasedProvider.selectedIndex
+                            ? AppColor.cardTitleColor
+                            : AppColor.dividerColor,
+                        width: 1,
+                      ),
+                    ),
+                    child: BuildCardItem(
+                      item: item,
+                      onTap: () {
+                        otpBasedProvider.loadingIndex = index;
+                        context.go(item['route'] as String);
+                      },
+                      curIndex: otpBasedProvider.curIndex,
+                      selectedIndex: otpBasedProvider.loadingIndex,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    },
+  );
+}
+
+Widget buildGridView(List<Map<String, dynamic>> items, int crossAxisCount) {
+  return GridView.builder(
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: crossAxisCount,
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
+      childAspectRatio: 2.2,
+    ),
+    itemCount: items.length,
+    itemBuilder: (context, index) {
+      final item = items[index];
+      return Consumer<OtpBasedProvider>(
+        builder: (context, otpBasedProvider, child) {
+          otpBasedProvider.curIndex = index;
+          return MouseRegion(
+            opaque: false,
+            cursor: MouseCursor.defer,
+            onEnter: (_) => otpBasedProvider.onEnter(index),
+            onExit: (_) => otpBasedProvider.onExit(),
+            onHover: (_) {
+              otpBasedProvider.selectedIndex = index;
+            },
+            child: Transform.scale(
+              scale: otpBasedProvider.selectedIndex == index ? 1.0 : 0.96,
+              child: Animate(
+                effects: [
+                  FadeEffect(duration: 100.ms, curve: Curves.easeOut),
+                  const ScaleEffect(
+                      begin: Offset(0.8, 0.8), curve: Curves.easeIn)
+                ],
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.0),
+                      border: Border.all(
+                        color: otpBasedProvider.curIndex ==
+                            otpBasedProvider.selectedIndex
+                            ? AppColor.cardTitleColor
+                            : AppColor.dividerColor,
+                        width: 1,
+                      ),
+                    ),
+                    child: BuildGridItem(
+                      item: item,
+                      onTap: () {
+                        otpBasedProvider.loadingIndex = index;
+                        context.go(item['route'] as String);
+                      },
+                      curIndex: otpBasedProvider.curIndex,
+                      selectedIndex: otpBasedProvider.loadingIndex,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+}
 
 
 

@@ -1,11 +1,14 @@
 class RoutesPath {
-  static const String splash = '/splash/session=:session/token=:token';
+  static const String splash = '/requesthandler';
   static const String home = '/home';
+  static const String session_expires = '/session_expires';
+  static const String connectivity_page = '/connectivity_page';
+  static const String error_page = '/error_page';
   static const String others = '/home/others';
   static const String sbi = '/home/sbi';
   static const String otp_based = '/home/otp_based';
   static const String payments = '/home/payments';
-  static const String re_initiate = '/home/payments/re_initiate/userId=:userId/userName=:userName';
+  static const String re_initiate = '/home/payments/re_initiate';
   static const String re_request = '/home/payments/re_request';
   static const String re_approval = '/home/payments/re_approval';
   static const String debitAdvise = '/home/payments/debit_advise';

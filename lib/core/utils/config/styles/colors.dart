@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 
 class AppColor {
   static const primaryColor = Colors.white;
+  static const highLiteTxt = Color(0xFF3E8AFF);
   static const cardTitleColor = Color(0xFF111827);
   static const cardTitleSubColor = Color(0xFF374151);
   static const drawerColor = Color(0xFF051645);
   static const drawerImgTileColor = Color(0xFF003650);
-  static const appbarColor = Color(0xFFFFE84A);
+  static const appbarColor = Color(0xFFFFDE00);
   static const dividerColor = Color(0xFFCCC6C6);
   static const hdTxtColor = Color(0xFF1F384C);
   static const errorTxt = Color(0xFF960000);
@@ -25,7 +26,7 @@ class AppColor {
   static const card5Title = Color(0xFF265749);
   static const card6 = Color(0xFFE8E86D);
   static const card6Title = Color(0xFF423E32);
-  static const card7 = Color(0xFFCFFFD7);
+  static const card7 = Color(0xFFD1DAF5);
   static const card7Title = Color(0xFF4B0008);
   static const card8 = Color(0xFFF7FFB5);
   static const card8Title = Color(0xFF34003A);
@@ -36,4 +37,6 @@ class AppColor {
   static const backBtn = Color(0xFF282828);
   static const excelBtn = Color(0xFF16A34A);
   static const pdfBtn = Color(0xFFDC2626);
+
+  static const cardItem = Color(0xFFE6E6E6);
 }

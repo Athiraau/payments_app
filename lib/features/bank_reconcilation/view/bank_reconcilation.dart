@@ -1,36 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:payments_application/features/bank_reconcilation/controller/bank_reco_controller.dart';
 import 'package:provider/provider.dart';
-import 'package:shimmer/shimmer.dart';
-
-import '../../../core/helpers/routes/app_route_name.dart';
-import '../../../core/helpers/routes/app_route_path.dart';
 import '../../../core/utils/config/styles/colors.dart';
+import '../../../core/utils/shared/component/widgets/custom_text.dart';
 import '../../../core/utils/shared/component/widgets/custom_textfield.dart';
 import '../../../core/utils/shared/component/widgets/item_card_widget.dart';
 import '../../../core/utils/shared/constant/assets_path.dart';
 import '../../bread_crumbs/view/bread_crumbs.dart';
+import '../controller/bank_reco_controller.dart';
 
 class BankReconPage extends StatefulWidget {
-  BankReconPage({super.key});
+  const BankReconPage({super.key});
 
   @override
   State<BankReconPage> createState() => _BankReconPageState();
 }
 
 class _BankReconPageState extends State<BankReconPage> {
+  final TextEditingController searchController = TextEditingController();
+  late BankRecoProvider bankRecoProvider;
+
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<BankRecoProvider>(context, listen: false).setTabIndex(0);
-    });
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    bankRecoProvider = Provider.of<BankRecoProvider>(context);
   }
 
-  TextEditingController searchController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => bankRecoProvider.setTabIndex(0));
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,15 +54,14 @@ class _BankReconPageState extends State<BankReconPage> {
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const BreadCrumbs(title: 'Bank Reconciliation',),
+            ///Bread crumbs
+            const BreadCrumbs(title: 'Bank Reconciliation'),
             const SizedBox(height: 10),
             Expanded(
               child: Container(
                 width: size.width,
-                height: double.infinity,
                 decoration: BoxDecoration(
                   color: AppColor.primaryColor,
                   border: Border.all(width: 1, color: AppColor.dividerColor),
@@ -77,6 +83,7 @@ class _BankReconPageState extends State<BankReconPage> {
                       children: [
                         Row(
                           children: [
+                            ///Search bar
                             SizedBox(
                               width: size.width * 0.50,
                               height: 40,
@@ -85,14 +92,16 @@ class _BankReconPageState extends State<BankReconPage> {
                                 hintTxt: 'Enter text',
                                 controller: searchController,
                                 keyboardType: TextInputType.text,
-                                labelTxtStyle: TextStyle(
-                                    color: AppColor.txtFieldItemColor),
-                                hintTxtStyle: TextStyle(
-                                    color: AppColor.txtFieldItemColor),
+                                labelTxtStyle: const TextStyle(
+                                  color: AppColor.txtFieldItemColor,
+                                ),
+                                hintTxtStyle: const TextStyle(
+                                  color: AppColor.txtFieldItemColor,
+                                ),
                                 onChanged: (value) {
-                                  context
-                                      .read<BankRecoProvider>()
-                                      .searchItems(value);
+                                  if (mounted) {
+                                    bankRecoProvider.searchItems(value);
+                                  }
                                 },
                                 validator: (value) => null,
                                 obscureText: false,
@@ -116,22 +125,21 @@ class _BankReconPageState extends State<BankReconPage> {
                           padding: const EdgeInsets.all(5),
                           child: TabBar(
                             onTap: (index) {
-                              context
-                                  .read<BankRecoProvider>()
-                                  .setTabIndex(index);
+                              bankRecoProvider.setTabIndex(index);
                             },
                             indicator: BoxDecoration(
-                                color: AppColor.drawerColor,
-                                borderRadius: BorderRadius.circular(12)),
+                              color: AppColor.drawerColor,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             indicatorSize: TabBarIndicatorSize.tab,
                             indicatorColor: Colors.black,
-                            labelStyle: TextStyle(
+                            labelStyle: const TextStyle(
                               fontFamily: 'poppinsRegular',
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
                             ),
-                            unselectedLabelStyle: TextStyle(
+                            unselectedLabelStyle: const TextStyle(
                               fontFamily: 'poppinsRegular',
                               color: AppColor.txtColorTab,
                               fontWeight: FontWeight.bold,
@@ -146,16 +154,15 @@ class _BankReconPageState extends State<BankReconPage> {
                             ],
                           ),
                         ),
-                        Expanded(
+                        const Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            padding: EdgeInsets.symmetric(vertical: 10),
                             child: TabBarView(
                               children: [
                                 BankRecoTabItem(),
                                 ReportTabItem(),
                                 NewReportTabItem(),
                                 HOReportTabItem(),
-
                               ],
                             ),
                           ),
@@ -173,154 +180,355 @@ class _BankReconPageState extends State<BankReconPage> {
   }
 }
 
-class BankRecoTabItem extends StatelessWidget {
+class BankRecoTabItem extends StatefulWidget {
   const BankRecoTabItem({super.key});
+
+  @override
+  State<BankRecoTabItem> createState() => _BankRecoTabItemState();
+}
+
+class _BankRecoTabItemState extends State<BankRecoTabItem> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      final bankRecoProvider =
+          Provider.of<BankRecoProvider>(context, listen: false);
+      bankRecoProvider.setTabIndex(0);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    final bankRecoProvider = Provider.of<BankRecoProvider>(context);
-    final isMobile = size.width < 600;
-    final isTablet = size.width >= 600 && size.width < 1024;
-    final crossAxisCount = isMobile ? 1 : (isTablet ? 2 : 3);
 
-    if (bankRecoProvider.isLoading) {
-      return isMobile
-          ? shimmerListView(itemCount: 6)
-          : shimmerGridView(crossAxisCount: crossAxisCount, itemCount: 6);
-    }
+    return Consumer<BankRecoProvider>(
+      builder: (context, bankRecoProvider, child) {
+        final isMobile = size.width < 600;
+        final isTablet = size.width >= 600 && size.width < 1024;
+        final crossAxisCount = isMobile ? 1 : (isTablet ? 3 : 4);
 
-    if (bankRecoProvider.filteredItems.isEmpty) {
-      return const Center(
-        child: Text(
-          "No items found",
-          style: TextStyle(
-            color: AppColor.drawerColor,
-            fontSize: 16,
-            fontFamily: 'poppinsRegular',
-          ),
-        ),
-      );
-    }
+        if (bankRecoProvider.isLoading) {
+          return isMobile
+              ? shimmerListView(itemCount: 6)
+              : shimmerGridView(crossAxisCount: crossAxisCount, itemCount: 6);
+        }
 
-    return isMobile
-        ? buildListView(bankRecoProvider.filteredItems)
-        : buildGridView(bankRecoProvider.filteredItems, crossAxisCount);
-  }
+        if (bankRecoProvider.filteredItems.isEmpty) {
+          return const Center(
+            child: CustomText(
+              text: "No items found",
+              color: AppColor.drawerColor,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          );
+        }
 
-  Widget shimmerListView({required int itemCount}) {
-    return ListView.builder(
-      itemCount: itemCount,
-      itemBuilder: (context, index) => Padding(
-        padding: const EdgeInsets.only(bottom: 10.0),
-        child: ShimmerWidget(height: 100, width: double.infinity),
-      ),
-    );
-  }
-
-  Widget shimmerGridView(
-      {required int crossAxisCount, required int itemCount}) {
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 2.5,
-      ),
-      itemCount: itemCount,
-      itemBuilder: (context, index) =>
-          ShimmerWidget(height: 100, width: double.infinity),
-    );
-  }
-
-  Widget buildListView(List<Map<String, dynamic>> items) {
-    return ListView.builder(
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        final item = items[index];
-        return SizedBox(
-          width: double.infinity,
-          height: 100,
-          child: GestureDetector(
-            onTap: () {
-              if (item['route'] == RoutesPath.re_initiate) {
-                context.goNamed(
-                  RoutesName.reInitiate,
-                  pathParameters: {
-                    "userId": "1001",
-                    "userName": "Raihan",
-                  },
-                );
-              } else {
-                context.go(item['route'] as String);
-              }
-            },
-            child: BuildCardItem(item: item,),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget buildGridView(List<Map<String, dynamic>> items, int crossAxisCount) {
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        childAspectRatio: 2.5,
-      ),
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        final item = items[index];
-        return GestureDetector(
-          onTap: () {
-            if (item['route'] == RoutesPath.re_initiate) {
-              context.goNamed(
-                RoutesName.reInitiate,
-                pathParameters: {
-                  "userId": "1001",
-                  "userName": "Raihan",
-                },
-              );
-            } else {
-              context.go(item['route'] as String);
-            }
-          },
-          child: BuildGridItem(item: item,),
-        );
+        return isMobile
+            ? buildListView(bankRecoProvider.filteredItems)
+            : buildGridView(bankRecoProvider.filteredItems, crossAxisCount);
       },
     );
   }
 }
 
-class ReportTabItem extends StatelessWidget {
+class ReportTabItem extends StatefulWidget {
   const ReportTabItem({super.key});
 
   @override
+  State<ReportTabItem> createState() => _ReportTabItemState();
+}
+
+class _ReportTabItemState extends State<ReportTabItem> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      final bankRecoProvider =
+          Provider.of<BankRecoProvider>(context, listen: false);
+      bankRecoProvider.setTabIndex(1);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const BankRecoTabItem();
+    var size = MediaQuery.of(context).size;
+
+    return Consumer<BankRecoProvider>(
+      builder: (context, bankRecoProvider, child) {
+        final isMobile = size.width < 600;
+        final isTablet = size.width >= 600 && size.width < 1024;
+        final crossAxisCount = isMobile ? 1 : (isTablet ? 3 : 4);
+
+        if (bankRecoProvider.isLoading) {
+          return isMobile
+              ? shimmerListView(itemCount: 6)
+              : shimmerGridView(crossAxisCount: crossAxisCount, itemCount: 6);
+        }
+
+        if (bankRecoProvider.filteredItems.isEmpty) {
+          return const Center(
+            child: CustomText(
+              text: "No items found",
+              color: AppColor.drawerColor,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          );
+        }
+
+        return isMobile
+            ? buildListView(bankRecoProvider.filteredItems)
+            : buildGridView(bankRecoProvider.filteredItems, crossAxisCount);
+      },
+    );
   }
 }
 
-class NewReportTabItem extends StatelessWidget {
+class NewReportTabItem extends StatefulWidget {
   const NewReportTabItem({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const BankRecoTabItem();
-  }
+  State<NewReportTabItem> createState() => _NewReportTabItemState();
 }
 
-class HOReportTabItem extends StatelessWidget {
-  const HOReportTabItem({super.key});
+class _NewReportTabItemState extends State<NewReportTabItem> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      final bankRecoProvider =
+          Provider.of<BankRecoProvider>(context, listen: false);
+      bankRecoProvider.setTabIndex(2);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return const BankRecoTabItem();
+    var size = MediaQuery.of(context).size;
+
+    return Consumer<BankRecoProvider>(
+      builder: (context, bankRecoProvider, child) {
+        final isMobile = size.width < 600;
+        final isTablet = size.width >= 600 && size.width < 1024;
+        final crossAxisCount = isMobile ? 1 : (isTablet ? 3 : 4);
+
+        if (bankRecoProvider.isLoading) {
+          return isMobile
+              ? shimmerListView(itemCount: 6)
+              : shimmerGridView(crossAxisCount: crossAxisCount, itemCount: 6);
+        }
+
+        if (bankRecoProvider.filteredItems.isEmpty) {
+          return const Center(
+            child: CustomText(
+              text: "No items found",
+              color: AppColor.drawerColor,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          );
+        }
+
+        return isMobile
+            ? buildListView(bankRecoProvider.filteredItems)
+            : buildGridView(bankRecoProvider.filteredItems, crossAxisCount);
+      },
+    );
   }
 }
 
+class HOReportTabItem extends StatefulWidget {
+  const HOReportTabItem({super.key});
 
+  @override
+  State<HOReportTabItem> createState() => _HOReportTabItemState();
+}
 
+class _HOReportTabItemState extends State<HOReportTabItem> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      final bankRecoProvider =
+          Provider.of<BankRecoProvider>(context, listen: false);
+      bankRecoProvider.setTabIndex(3);
+    });
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+
+    return Consumer<BankRecoProvider>(
+      builder: (context, bankRecoProvider, child) {
+        final isMobile = size.width < 600;
+        final isTablet = size.width >= 600 && size.width < 1024;
+        final crossAxisCount = isMobile ? 1 : (isTablet ? 3 : 4);
+
+        if (bankRecoProvider.isLoading) {
+          return isMobile
+              ? shimmerListView(itemCount: 6)
+              : shimmerGridView(crossAxisCount: crossAxisCount, itemCount: 6);
+        }
+
+        if (bankRecoProvider.filteredItems.isEmpty) {
+          return const Center(
+            child: CustomText(
+              text: "No items found",
+              color: AppColor.drawerColor,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          );
+        }
+
+        return isMobile
+            ? buildListView(bankRecoProvider.filteredItems)
+            : buildGridView(bankRecoProvider.filteredItems, crossAxisCount);
+      },
+    );
+  }
+}
+
+Widget shimmerListView({required int itemCount}) {
+  return ListView.builder(
+    itemCount: itemCount,
+    itemBuilder: (context, index) => const Padding(
+      padding: EdgeInsets.only(bottom: 10.0),
+      child: ShimmerWidget(height: 100, width: double.infinity),
+    ),
+  );
+}
+
+Widget shimmerGridView({required int crossAxisCount, required int itemCount}) {
+  return GridView.builder(
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: crossAxisCount,
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
+      childAspectRatio: 2.2,
+    ),
+    itemCount: itemCount,
+    itemBuilder: (context, index) =>
+        const ShimmerWidget(height: 100, width: double.infinity),
+  );
+}
+
+Widget buildListView(List<Map<String, dynamic>> items) {
+  return ListView.builder(
+    itemCount: items.length,
+    itemBuilder: (context, index) {
+      final item = items[index];
+      return SizedBox(
+        width: double.infinity,
+        height: 70,
+        child: Consumer<BankRecoProvider>(
+          builder: (context, bankRecoProvider, child) {
+            bankRecoProvider.curIndex = index;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: MouseRegion(
+                opaque: false,
+                cursor: MouseCursor.defer,
+                onEnter: (_) => bankRecoProvider.onEnter(index),
+                onExit: (_) => bankRecoProvider.onExit(),
+                onHover: (_) {
+                  bankRecoProvider.selectedIndex = index;
+                },
+                child: Transform.scale(
+                  scale: bankRecoProvider.selectedIndex == index ? 1.0 : 0.96,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.0),
+                      border: Border.all(
+                        color: bankRecoProvider.curIndex ==
+                                bankRecoProvider.selectedIndex
+                            ? AppColor.cardTitleColor
+                            : AppColor.dividerColor,
+                        width: 1,
+                      ),
+                    ),
+                    child: BuildCardItem(
+                      item: item,
+                      onTap: () {
+                        bankRecoProvider.loadingIndex = index;
+                        context.go(item['route'] as String);
+                      },
+                      curIndex: bankRecoProvider.curIndex,
+                      selectedIndex: bankRecoProvider.loadingIndex,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    },
+  );
+}
+
+Widget buildGridView(List<Map<String, dynamic>> items, int crossAxisCount) {
+  return GridView.builder(
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: crossAxisCount,
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
+      childAspectRatio: 2.2,
+    ),
+    itemCount: items.length,
+    itemBuilder: (context, index) {
+      final item = items[index];
+      return Consumer<BankRecoProvider>(
+        builder: (context, bankRecoProvider, child) {
+          bankRecoProvider.curIndex = index;
+          return MouseRegion(
+            opaque: false,
+            cursor: MouseCursor.defer,
+            onEnter: (_) => bankRecoProvider.onEnter(index),
+            onExit: (_) => bankRecoProvider.onExit(),
+            onHover: (_) {
+              bankRecoProvider.selectedIndex = index;
+            },
+            child: Transform.scale(
+              scale: bankRecoProvider.selectedIndex == index ? 1.0 : 0.96,
+              child: Animate(
+                effects: [
+                  FadeEffect(duration: 100.ms, curve: Curves.easeOut),
+                  const ScaleEffect(
+                      begin: Offset(0.8, 0.8), curve: Curves.easeIn)
+                ],
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.0),
+                      border: Border.all(
+                        color: bankRecoProvider.curIndex ==
+                                bankRecoProvider.selectedIndex
+                            ? AppColor.cardTitleColor
+                            : AppColor.dividerColor,
+                        width: 1,
+                      ),
+                    ),
+                    child: BuildGridItem(
+                      item: item,
+                      onTap: () {
+                        bankRecoProvider.loadingIndex = index;
+                        context.go(item['route'] as String);
+                      },
+                      curIndex: bankRecoProvider.curIndex,
+                      selectedIndex: bankRecoProvider.loadingIndex,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+}

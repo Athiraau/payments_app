@@ -1,30 +1,39 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:payments_application/core/helpers/routes/app_route_name.dart';
-
-import '../../../core/helpers/cache_helper/app_cache_helper.dart';
-import '../../../core/helpers/encryption/app_encryption_helper.dart';
+import '../../../core/helpers/routes/app_route_name.dart';
 import '../../../core/helpers/routes/app_route_path.dart';
 import '../../../core/utils/config/styles/colors.dart';
 import '../../../core/utils/shared/component/widgets/custom_alert_box.dart';
 import '../../../core/utils/shared/component/widgets/custom_toast.dart';
 import '../../../core/utils/shared/constant/assets_path.dart';
-import '../model/pay_status_chk_model.dart';
 import '../repository/payments_repo.dart';
-import '../model/pay_status_chk_model.dart';
 
 class PaymentsProvider extends ChangeNotifier {
   PaymentsProvider() {
     loadingPayments();
   }
 
-  // Loading state
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
   int _curIndex = 0;
   int get curIndex => _curIndex;
+
+  set curIndex(int value) {
+    _curIndex = value;
+  }
+
+  String? _currentLoadingRoute;
+
+  String? get currentLoadingRoute => _currentLoadingRoute;
+
+  final TextEditingController searchController = TextEditingController();
+
+  void setLoading(String? route) {
+    _currentLoadingRoute = route;
+    notifyListeners();
+  }
 
   // Payment items
   final List<Map<String, dynamic>> _paymentsItems = [
@@ -85,8 +94,7 @@ class PaymentsProvider extends ChangeNotifier {
       "cardTitle": AppColor.card8Title
     }
   ];
-
-  // Report items
+// Report items
   final List<Map<String, dynamic>> _reportItem = [
     {
       "logo": AssetsPath.request,
@@ -144,18 +152,22 @@ class PaymentsProvider extends ChangeNotifier {
 
     await Future.delayed(const Duration(seconds: 2)).then((value) {
       _isLoading = false;
-      loadPaymentsItem();
+      _filteredItems = List.from(paymentsItems);
       notifyListeners();
     });
   }
 
-  setTabIndex(int index) async {
+  Future<void> setTabIndex(int index) async {
     _curIndex = index;
+
     if (_curIndex == 0) {
-      loadPaymentsItem();
+      _filteredItems = List.from(paymentsItems);
+      notifyListeners();
     } else {
-      loadReportItem();
+      _filteredItems = List.from(reportItem);
+      notifyListeners();
     }
+
     notifyListeners();
   }
 
@@ -176,31 +188,50 @@ class PaymentsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void loadPaymentsItem() {
-    _filteredItems = List.from(paymentsItems);
+  //transition
+
+  void onEnter(int index) {
+    selectedIndex = index;
     notifyListeners();
   }
 
-  void loadReportItem() {
-    _filteredItems = List.from(reportItem);
+  void onExit() {
+    selectedIndex = -1;
     notifyListeners();
   }
 
-  //branch name
+  void resetItem() {
+    selectedIndex = -1;
+    curIndex = 0;
+    notifyListeners();
+  }
 
 //payment status check api
+  int selectedIndex = -1;
+  void setIndex({required int curIndex}) {
+    selectedIndex = curIndex;
+    notifyListeners();
+  }
+
   final _api = PaymentsRepository();
-  var payStatusChkModel = PayStatusChkModel();
-  Future<void> chkAuthPayStatus({required BuildContext context}) async {
+  bool _isLoadingStatus = false;
+  bool get isLoadingStatus => _isLoadingStatus;
+  int _loadingIndex = -1;
+  int get loadingIndex => _loadingIndex;
+
+  set loadingIndex(int value) {
+    _loadingIndex = value;
+  }
+
+
+  Future<void> payStatusAccess({required BuildContext context}) async {
     try {
-      final response = await _api.chkAuthPayStatus();
+      _isLoadingStatus = true;
+      notifyListeners();
+      final response = await _api.payStatusAccess();
 
       if (response != null && response['status'] == 200) {
-        payStatusChkModel = PayStatusChkModel.fromJson(response['data']);
-        final splitResponse = payStatusChkModel.response!.first.rES!.split('~');
-
-        // final splitResponse = response['data']['response'][0]['RES'].split('~');
-
+        final splitResponse = response['data']['response'][0]['RES'].split('~');
         final shouldNavigate = splitResponse[0].toString() == "0" ||
             splitResponse[1].toString() == "1";
 
@@ -212,9 +243,10 @@ class PaymentsProvider extends ChangeNotifier {
               context: context,
               title: 'Unauthorized',
               message: splitResponse[1].toString(),
-              confirmText: 'Confirm',
-              cancelText: 'Cancel',
-              isActionTrue: false,
+              cancelText: 'Ok',
+              onCancelPressed: () {
+                context.pop();
+              },
             );
           });
         } else {
@@ -233,7 +265,144 @@ class PaymentsProvider extends ChangeNotifier {
       CustomToast.showCustomToast(
           message: "An error occurred while checking payment status");
     } finally {
+      _isLoadingStatus = false;
       notifyListeners();
     }
+  }
+
+  ///IMPS inquiry
+  Future<void> chkImpsStatus({required BuildContext context}) async {
+    try {
+      setLoading(RoutesPath.impsInquiry);
+      notifyListeners();
+      final response = await _api.chkImpsStatus();
+
+      if (response != null && response['status'] == 200) {
+        final splitResponse = response['data']['response'][0]['RES'].split('~');
+
+        final shouldNavigate = splitResponse[0].toString() == "0" ||
+            splitResponse[0].toString() == "1";
+
+        notifyListeners();
+
+        if (shouldNavigate) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            CustomAlertDialog.showCustomAlertDialog(
+              context: context,
+              title: 'Unauthorized $shouldNavigate $splitResponse[0]',
+              message: splitResponse[1].toString(),
+              cancelText: 'Ok',
+              onCancelPressed: () {
+                context.pop();
+              },
+            );
+          });
+        } else {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            context.goNamed(RoutesName.impsInquiry);
+          });
+        }
+      } else {
+        CustomToast.showCustomToast(message: "Unexpected error occurred");
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error: $e");
+      }
+      CustomToast.showCustomToast(
+          message: "An error occurred while checking payment status");
+    } finally {
+      setLoading(null);
+      notifyListeners();
+    }
+  }
+
+  ///Customer Neft details
+  Future<void> chkCusNEFTDetAccess({required BuildContext context}) async {
+    try {
+      _isLoadingStatus = true;
+      notifyListeners();
+      final response = await _api.chkCusNeftDetAccess();
+
+      if (response != null && response['status'] == 200) {
+        final splitResponse = response['data']['response'][0]['RES'].split('~');
+        if (splitResponse[0].toString() == "0") {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            CustomAlertDialog.showCustomAlertDialog(
+              context: context,
+              title: 'Unauthorized',
+              message: splitResponse[1].toString(),
+              cancelText: 'Ok',
+              onCancelPressed: () {
+                context.pop();
+              },
+            );
+          });
+        } else {
+          if (context.mounted) {
+            context.goNamed(RoutesName.neftDeatils);
+          }
+        }
+      } else {
+        CustomToast.showCustomToast(message: "Unexpected error occurred");
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error: $e");
+      }
+      CustomToast.showCustomToast(
+          message: "An error occurred while checking payment status");
+    } finally {
+      _isLoadingStatus = false;
+      notifyListeners();
+    }
+  }
+
+  ///Change debit advise branch
+  Future<void> changeDebitAdviseAccess({required BuildContext context}) async {
+    try {
+      _isLoadingStatus = true;
+      notifyListeners();
+      final response = await _api.changeDebitAdviseAccess();
+
+      if (response != null && response['status'] == 200) {
+        final splitResponse = response['data']['response'][0]['RES'].split('~');
+        if (splitResponse[0].toString() == "0") {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            CustomAlertDialog.showCustomAlertDialog(
+              context: context,
+              title: 'Unauthorized',
+              message: splitResponse[1].toString(),
+              cancelText: 'Ok',
+              onCancelPressed: () {
+                context.pop();
+              },
+            );
+          });
+        } else {
+          if (context.mounted) {
+            context.goNamed(RoutesName.changeDebitAdviseBranch);
+          }
+        }
+      } else {
+        CustomToast.showCustomErrorToast(message: "Unexpected error occurred");
+        notifyListeners();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error: $e");
+      }
+    } finally {
+      _isLoadingStatus = false;
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 }

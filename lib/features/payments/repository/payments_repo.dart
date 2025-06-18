@@ -1,28 +1,70 @@
-import 'package:payments_application/core/helpers/network/api_endpoints.dart';
-
 import '../../../../../../core/helpers/network/network_api_services.dart';
 import '../../../core/helpers/cache_helper/app_cache_helper.dart';
 import '../../../core/helpers/encryption/app_encryption_helper.dart';
 import '../../../core/helpers/encryption/encryption_value.dart';
+import '../../../core/helpers/network/api_endpoints.dart';
 
 class PaymentsRepository {
   final _apiService = NetworkApiServices();
+  final appCacheHelper = AppCacheHelper();
 
-  Future<dynamic> chkAuthPayStatus() async {
-    final _appCacheHelper = AppCacheHelper();
-    final _appDecryptHelper = AppEncryptionHelper();
-    final _encrptEmpId = await _appCacheHelper.getData("empCode");
-    final _encrptBranchId = await _appCacheHelper.getData("branchID");
-    final _decrptEmpId = _appDecryptHelper.decryptData(
-        data: _encrptEmpId.toString(),
+  ///Payment status
+  Future<dynamic> payStatusAccess() async {
+    final appCacheHelper = AppCacheHelper();
+    final appDecryptHelper = AppEncryptionHelper();
+    final encrptEmpId = await appCacheHelper.getData("empCode");
+    final p_pageval = appDecryptHelper.decryptData(
+        data: encrptEmpId.toString(),
         baseKey: EncryptionValue.keyAsString,
         ivKey: EncryptionValue.ivAsString);
-    final _decrptBranchId = _appDecryptHelper.decryptData(
-        data: _encrptBranchId.toString(),
+    String p_flag = "PAYMENTSTATUS_ACCESS";
+    String p_paraval = "1";
+    dynamic response = await _apiService
+        .getApi("${ApiEndPoints.baseURL}$p_flag/$p_pageval/$p_paraval");
+    return response;
+  }
+
+  Future<dynamic> chkImpsStatus() async {
+    final appDecryptHelper = AppEncryptionHelper();
+    final encrptEmpId = appCacheHelper.getData("empCode");
+    final decrptEmpId = await appDecryptHelper.decryptData(
+        data: encrptEmpId.toString(),
         baseKey: EncryptionValue.keyAsString,
         ivKey: EncryptionValue.ivAsString);
     dynamic response = await _apiService.getApi(
-        "${ApiEndPoints.baseURL}${ApiEndPoints.paymentAccess}${10905}/${1}");
+        "${ApiEndPoints.baseURL}${ApiEndPoints.impsAccess}$decrptEmpId/${1}");
+    return response;
+  }
+
+  ///Customer Neft details
+  Future<dynamic> chkCusNeftDetAccess() async {
+    final appCacheHelper = AppCacheHelper();
+    final appDecryptHelper = AppEncryptionHelper();
+    final encrptEmpId = await appCacheHelper.getData("empCode");
+    final p_pageval = appDecryptHelper.decryptData(
+        data: encrptEmpId.toString(),
+        baseKey: EncryptionValue.keyAsString,
+        ivKey: EncryptionValue.ivAsString);
+    String p_flag = "CUSTOMER_NEFT_ACCESS";
+    String p_paraval = "1";
+    dynamic response = await _apiService
+        .getApi("${ApiEndPoints.baseURL}$p_flag/$p_pageval/$p_paraval");
+    return response;
+  }
+
+  ///Change debit advise branch
+  Future<dynamic> changeDebitAdviseAccess() async {
+    final appCacheHelper = AppCacheHelper();
+    final appDecryptHelper = AppEncryptionHelper();
+    final encrptEmpId = await appCacheHelper.getData("empCode");
+    final p_pageval = appDecryptHelper.decryptData(
+        data: encrptEmpId.toString(),
+        baseKey: EncryptionValue.keyAsString,
+        ivKey: EncryptionValue.ivAsString);
+    String p_flag = "BRANCH_CHANGE_ACCESS";
+    String p_paraval = "1";
+    dynamic response = await _apiService
+        .getApi("${ApiEndPoints.baseURL}$p_flag/$p_pageval/$p_paraval");
     return response;
   }
 }
